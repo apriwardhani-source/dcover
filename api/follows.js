@@ -37,18 +37,48 @@ module.exports = async function handler(req, res) {
         return res.json({ following: existing.length > 0 });
     }
 
-    // GET /follows/followers/:userId
+    // GET /follows/followers/:userId - Get list of followers with details
     if (req.method === 'GET' && path.startsWith('followers/')) {
         const userId = path.split('/')[1];
-        const [result] = await pool.query('SELECT COUNT(*) as count FROM follows WHERE following_id = ?', [userId]);
-        return res.json({ count: result[0].count });
+        const [followers] = await pool.query(`
+            SELECT u.id, u.name, u.photo_url,
+                   (SELECT COUNT(*) FROM songs WHERE user_id = u.id) as song_count
+            FROM follows f
+            JOIN users u ON f.follower_id = u.id
+            WHERE f.following_id = ?
+            ORDER BY f.created_at DESC
+        `, [userId]);
+        return res.json({
+            count: followers.length,
+            users: followers.map(u => ({
+                id: u.id,
+                name: u.name,
+                photoURL: u.photo_url,
+                songCount: u.song_count
+            }))
+        });
     }
 
-    // GET /follows/following/:userId
+    // GET /follows/following/:userId - Get list of following with details
     if (req.method === 'GET' && path.startsWith('following/')) {
         const userId = path.split('/')[1];
-        const [result] = await pool.query('SELECT COUNT(*) as count FROM follows WHERE follower_id = ?', [userId]);
-        return res.json({ count: result[0].count });
+        const [following] = await pool.query(`
+            SELECT u.id, u.name, u.photo_url,
+                   (SELECT COUNT(*) FROM songs WHERE user_id = u.id) as song_count
+            FROM follows f
+            JOIN users u ON f.following_id = u.id
+            WHERE f.follower_id = ?
+            ORDER BY f.created_at DESC
+        `, [userId]);
+        return res.json({
+            count: following.length,
+            users: following.map(u => ({
+                id: u.id,
+                name: u.name,
+                photoURL: u.photo_url,
+                songCount: u.song_count
+            }))
+        });
     }
 
     return res.status(404).json({ error: 'Not found' });

@@ -5,7 +5,7 @@ import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera } from 'lucide-react';
+import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera, Users } from 'lucide-react';
 
 import { API_URL } from '../config';
 
@@ -27,6 +27,12 @@ const Profile = () => {
     const [editBio, setEditBio] = useState('');
     const [saving, setSaving] = useState(false);
 
+    // Followers/Following state
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
+    const [showModal, setShowModal] = useState(null); // 'followers' | 'following' | null
+    const [modalUsers, setModalUsers] = useState([]);
+
     useEffect(() => {
         if (user) {
             loadData();
@@ -37,16 +43,32 @@ const Profile = () => {
 
     const loadData = async () => {
         try {
-            const [songsData, albumsData] = await Promise.all([
+            const [songsData, albumsData, followersData, followingData] = await Promise.all([
                 api.getUserSongs(user.id),
-                api.getUserAlbums(user.id)
+                api.getUserAlbums(user.id),
+                api.getFollowers(user.id),
+                api.getFollowing(user.id)
             ]);
             setSongs(songsData);
             setAlbums(albumsData);
+            setFollowersCount(followersData.count || 0);
+            setFollowingCount(followingData.count || 0);
         } catch (error) {
             console.error('Load error:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleShowModal = async (type) => {
+        setShowModal(type);
+        try {
+            const data = type === 'followers'
+                ? await api.getFollowers(user.id)
+                : await api.getFollowing(user.id);
+            setModalUsers(data.users || []);
+        } catch (error) {
+            console.error('Failed to load users:', error);
         }
     };
 
@@ -198,6 +220,20 @@ const Profile = () => {
                         <span className="flex items-center gap-1"><Disc className="w-4 h-4" />{albums.length} Album</span>
                         <span className="flex items-center gap-1"><Heart className="w-4 h-4" />{totalLikes} Likes</span>
                     </div>
+                    <div className="flex items-center justify-center md:justify-start gap-4 mt-2">
+                        <button
+                            onClick={() => handleShowModal('followers')}
+                            className="text-[var(--color-text-secondary)] hover:text-white transition-colors"
+                        >
+                            <strong className="text-white">{followersCount}</strong> Pengikut
+                        </button>
+                        <button
+                            onClick={() => handleShowModal('following')}
+                            className="text-[var(--color-text-secondary)] hover:text-white transition-colors"
+                        >
+                            <strong className="text-white">{followingCount}</strong> Mengikuti
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -270,6 +306,51 @@ const Profile = () => {
 
             <input ref={coverInputRef} type="file" accept="image/*" onChange={(e) => editingCover && handleCoverUpload(e, editingCover.type, editingCover.id)} className="hidden" />
             {menuOpen && <div className="fixed inset-0 z-0" onClick={() => setMenuOpen(null)} />}
+
+            {/* Followers/Following Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setShowModal(null)}>
+                    <div className="bg-[var(--color-surface)] rounded-xl w-full max-w-md max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                <Users className="w-5 h-5 text-[var(--color-primary)]" />
+                                {showModal === 'followers' ? 'Pengikut' : 'Mengikuti'}
+                            </h3>
+                            <button onClick={() => setShowModal(null)} className="p-2 hover:bg-[var(--color-surface-hover)] rounded-full">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="overflow-y-auto max-h-96 p-2">
+                            {modalUsers.length === 0 ? (
+                                <p className="text-center py-8 text-[var(--color-text-secondary)]">
+                                    {showModal === 'followers' ? 'Belum ada pengikut' : 'Belum mengikuti siapapun'}
+                                </p>
+                            ) : (
+                                modalUsers.map(u => (
+                                    <Link
+                                        key={u.id}
+                                        to={`/user/${u.id}`}
+                                        onClick={() => setShowModal(null)}
+                                        className="flex items-center gap-3 p-3 hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors"
+                                    >
+                                        {u.photoURL ? (
+                                            <img src={u.photoURL} alt={u.name} className="w-12 h-12 rounded-full object-cover" />
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-full bg-[var(--color-surface-hover)] flex items-center justify-center">
+                                                <span className="text-lg font-bold">{u.name?.charAt(0)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-medium truncate">{u.name}</p>
+                                            <p className="text-sm text-[var(--color-text-secondary)]">{u.songCount} lagu</p>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

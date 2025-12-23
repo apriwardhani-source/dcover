@@ -235,6 +235,14 @@ class ApiService {
         });
     }
 
+    async getFollowers(userId) {
+        return this.request(`/follows/followers/${userId}`);
+    }
+
+    async getFollowing(userId) {
+        return this.request(`/follows/following/${userId}`);
+    }
+
     // Banners
     async getBanners() {
         return this.request('/banners');
