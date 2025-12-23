@@ -8,6 +8,33 @@ module.exports = async function handler(req, res) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const path = url.pathname.replace('/api/users', '').replace(/^\//, '');
 
+    // GET /users/suggestions - Get users to follow (not already following)
+    if (req.method === 'GET' && path === 'suggestions') {
+        const user = await getAuthUser(req);
+        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+        // Get users that current user is NOT following, excluding self
+        const [users] = await pool.query(`
+            SELECT u.id, u.name, u.photo_url,
+                   (SELECT COUNT(*) FROM songs WHERE user_id = u.id) as song_count,
+                   (SELECT COUNT(*) FROM follows WHERE following_id = u.id) as follower_count
+            FROM users u
+            WHERE u.id != ? 
+              AND u.id NOT IN (SELECT following_id FROM follows WHERE follower_id = ?)
+              AND u.suspended = 0
+            ORDER BY song_count DESC, follower_count DESC
+            LIMIT 10
+        `, [user.id, user.id]);
+
+        return res.json(users.map(u => ({
+            id: u.id,
+            name: u.name,
+            photoURL: u.photo_url,
+            songCount: u.song_count,
+            followerCount: u.follower_count
+        })));
+    }
+
     // GET /users (admin)
     if (req.method === 'GET' && path === '') {
         const user = await getAuthUser(req);

@@ -4,6 +4,7 @@ import api from '../services/api';
 import SongCard from '../components/SongCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SearchFilters from '../components/SearchFilters';
+import SuggestedUsers from '../components/SuggestedUsers';
 import { Music2, TrendingUp, Clock, Heart, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -264,6 +265,13 @@ const Home = () => {
                                     <SongCard key={song.songId} song={song} songs={popularSongs} index={index} onLikeChange={loadData} />
                                 ))}
                             </div>
+                        </section>
+                    )}
+
+                    {/* Suggested Users */}
+                    {user && (
+                        <section className="mb-10">
+                            <SuggestedUsers />
                         </section>
                     )}
                 </>

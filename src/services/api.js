@@ -214,6 +214,10 @@ class ApiService {
         return this.request(`/users/${userId}`);
     }
 
+    async getSuggestedUsers() {
+        return this.request('/users/suggestions');
+    }
+
     // Profile
     async updateProfile(data) {
         // For Vercel + Cloudinary, send to upload endpoint
