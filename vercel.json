@@ -4,8 +4,18 @@
     "framework": "vite",
     "rewrites": [
         {
+            "source": "/api/(.*)",
+            "destination": "/api"
+        },
+        {
             "source": "/(.*)",
             "destination": "/"
         }
-    ]
+    ],
+    "functions": {
+        "api/**/*.js": {
+            "memory": 1024,
+            "maxDuration": 30
+        }
+    }
 }
