@@ -1,4 +1,4 @@
-const { cors, getAuthUser, getPool } = require('./_lib/auth');
+const { cors, getAuthUser, getPool } = require('./lib/auth');
 
 module.exports = async function handler(req, res) {
     cors(res);
