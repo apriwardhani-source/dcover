@@ -1,4 +1,4 @@
-import { Play, Pause, Heart, Music2, Headphones } from 'lucide-react';
+import { Play, Pause, Heart, Music2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePlayer } from '../context/PlayerContext';
 import { useAuth } from '../context/AuthContext';
@@ -84,7 +84,7 @@ const SongCard = ({ song, songs, index, onLikeChange }) => {
                         <span>{song.likes || 0}</span>
                     </button>
                     <span className="flex items-center gap-1 text-sm text-[var(--color-text-secondary)]">
-                        <Headphones className="w-4 h-4" />
+                        <Play className="w-4 h-4" />
                         <span>{song.plays || 0}</span>
                     </span>
                 </div>
