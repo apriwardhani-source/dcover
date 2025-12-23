@@ -165,6 +165,9 @@ const Home = () => {
                 totalResults={searchQuery ? filteredSongs.length : 0}
             />
 
+            {/* Suggested Users - horizontal scroll */}
+            {user && <SuggestedUsers />}
+
             {/* Tabs */}
             <div className="flex gap-2 mb-6">
                 <TabButton active={activeTab === 'all'} onClick={() => setActiveTab('all')}>Semua</TabButton>
@@ -265,13 +268,6 @@ const Home = () => {
                                     <SongCard key={song.songId} song={song} songs={popularSongs} index={index} onLikeChange={loadData} />
                                 ))}
                             </div>
-                        </section>
-                    )}
-
-                    {/* Suggested Users */}
-                    {user && (
-                        <section className="mb-10">
-                            <SuggestedUsers />
                         </section>
                     )}
                 </>
