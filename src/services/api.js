@@ -77,10 +77,11 @@ class ApiService {
         return this.request(`/songs/album/${albumId}`);
     }
 
-    async uploadSong(formData) {
-        return this.request('/songs', {
+    async uploadSong(data) {
+        // For Vercel + Cloudinary, send JSON with base64 data
+        return this.request('/upload/song', {
             method: 'POST',
-            body: formData,
+            body: JSON.stringify(data),
         });
     }
 
@@ -120,10 +121,11 @@ class ApiService {
         return this.request(`/albums/user/${userId}`);
     }
 
-    async createAlbum(formData) {
-        return this.request('/albums', {
+    async createAlbum(data) {
+        // For Vercel + Cloudinary, send JSON with base64 data
+        return this.request('/upload/album', {
             method: 'POST',
-            body: formData,
+            body: JSON.stringify(data),
         });
     }
 
@@ -158,16 +160,10 @@ class ApiService {
 
     // Profile
     async updateProfile(data) {
-        return this.request('/users/profile', {
+        // For Vercel + Cloudinary, send to upload endpoint
+        return this.request('/upload/profile', {
             method: 'PATCH',
             body: JSON.stringify(data),
-        });
-    }
-
-    async updateProfilePhoto(formData) {
-        return this.request('/users/profile/photo', {
-            method: 'PATCH',
-            body: formData,
         });
     }
 

@@ -86,6 +86,16 @@ const Upload = () => {
     const nextStep = () => { if (canProceed() && currentStep < 5) setCurrentStep(currentStep + 1); };
     const prevStep = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
 
+    // Helper function to convert file to base64
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    };
+
     const handlePublish = async () => {
         if (!canProceed()) return;
         setUploading(true);
@@ -93,35 +103,37 @@ const Upload = () => {
             let albumId = null;
 
             if (albumOption === 'new') {
-                const albumFormData = new FormData();
-                albumFormData.append('title', newAlbumTitle);
-                if (newAlbumCover) albumFormData.append('cover', newAlbumCover);
-                const albumResult = await api.createAlbum(albumFormData);
+                const albumData = { title: newAlbumTitle };
+                if (newAlbumCover) {
+                    albumData.coverData = await fileToBase64(newAlbumCover);
+                }
+                const albumResult = await api.createAlbum(albumData);
                 albumId = albumResult.albumId;
             } else if (albumOption === 'existing' && selectedAlbum) {
                 albumId = selectedAlbum.albumId;
             }
 
-            const songFormData = new FormData();
-            songFormData.append('audio', audioFile);
-            songFormData.append('title', songTitle);
-            songFormData.append('originalArtist', originalArtist);
-            if (lyrics.trim()) songFormData.append('lyrics', lyrics.trim());
-            if (albumId) songFormData.append('albumId', albumId);
-
-            const songResult = await api.uploadSong(songFormData);
+            // Convert audio and cover to base64
+            const audioData = await fileToBase64(audioFile);
+            const songData = {
+                title: songTitle,
+                originalArtist: originalArtist,
+                audioData: audioData,
+                albumId: albumId,
+                lyrics: lyrics.trim() || null
+            };
 
             if (coverImage) {
-                const coverFormData = new FormData();
-                coverFormData.append('cover', coverImage);
-                await api.updateSongCover(songResult.songId, coverFormData);
+                songData.coverData = await fileToBase64(coverImage);
             }
+
+            await api.uploadSong(songData);
 
             toast.success('Lagu berhasil dipublish! 🎉');
             navigate('/');
         } catch (error) {
             console.error('Upload error:', error);
-            toast.error('Gagal mengupload. Coba lagi.');
+            toast.error('Gagal mengupload: ' + error.message);
         } finally {
             setUploading(false);
         }

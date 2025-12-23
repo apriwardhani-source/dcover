@@ -74,11 +74,14 @@ const Profile = () => {
         if (!file || !file.type.startsWith('image/')) return;
 
         try {
-            const formData = new FormData();
-            formData.append('photo', file);
-            await api.updateProfilePhoto(formData);
-            toast.success('Foto profil diupdate!');
-            window.location.reload();
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onload = async () => {
+                await api.updateProfile({ photoData: reader.result });
+                toast.success('Foto profil diupdate!');
+                window.location.reload();
+            };
+            reader.readAsDataURL(file);
         } catch (error) {
             toast.error('Gagal upload foto');
         }

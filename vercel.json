@@ -63,6 +63,14 @@
             "dest": "/api/banners.js"
         },
         {
+            "src": "/api/upload/(.*)",
+            "dest": "/api/upload.js"
+        },
+        {
+            "src": "/api/upload",
+            "dest": "/api/upload.js"
+        },
+        {
             "src": "/api/health",
             "dest": "/api/health.js"
         },
