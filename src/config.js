@@ -1,4 +1,4 @@
 // Centralized configuration for API URL
-// Uses environment variable in production, falls back to production URL
-export const API_URL = import.meta.env.VITE_API_URL || 'https://apriwardhani.site';
+// For Vercel deployment, API is on same origin
+export const API_URL = import.meta.env.VITE_API_URL || '';
 export const API_BASE_URL = `${API_URL}/api`;

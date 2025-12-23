@@ -1,21 +1,77 @@
 {
-    "buildCommand": "npm run build",
-    "outputDirectory": "dist",
-    "framework": "vite",
-    "rewrites": [
+    "version": 2,
+    "builds": [
         {
-            "source": "/api/(.*)",
-            "destination": "/api"
+            "src": "api/**/*.js",
+            "use": "@vercel/node"
         },
         {
-            "source": "/(.*)",
-            "destination": "/"
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
         }
     ],
-    "functions": {
-        "api/**/*.js": {
-            "memory": 1024,
-            "maxDuration": 30
+    "routes": [
+        {
+            "src": "/api/auth/(.*)",
+            "dest": "/api/auth.js"
+        },
+        {
+            "src": "/api/songs/(.*)",
+            "dest": "/api/songs.js"
+        },
+        {
+            "src": "/api/songs",
+            "dest": "/api/songs.js"
+        },
+        {
+            "src": "/api/albums/(.*)",
+            "dest": "/api/albums.js"
+        },
+        {
+            "src": "/api/albums",
+            "dest": "/api/albums.js"
+        },
+        {
+            "src": "/api/users/(.*)",
+            "dest": "/api/users.js"
+        },
+        {
+            "src": "/api/users",
+            "dest": "/api/users.js"
+        },
+        {
+            "src": "/api/comments/(.*)",
+            "dest": "/api/comments.js"
+        },
+        {
+            "src": "/api/comments",
+            "dest": "/api/comments.js"
+        },
+        {
+            "src": "/api/follows/(.*)",
+            "dest": "/api/follows.js"
+        },
+        {
+            "src": "/api/banners/(.*)",
+            "dest": "/api/banners.js"
+        },
+        {
+            "src": "/api/banners",
+            "dest": "/api/banners.js"
+        },
+        {
+            "src": "/api/health",
+            "dest": "/api/health.js"
+        },
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/index.html"
         }
-    }
+    ]
 }
