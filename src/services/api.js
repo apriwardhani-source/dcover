@@ -125,6 +125,19 @@ class ApiService {
         });
     }
 
+    async updateSong(songId, data) {
+        return this.request(`/songs/${songId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async playSong(songId) {
+        return this.request(`/songs/${songId}/play`, {
+            method: 'POST',
+        });
+    }
+
     async likeSong(songId) {
         return this.request(`/songs/${songId}/like`, {
             method: 'POST',

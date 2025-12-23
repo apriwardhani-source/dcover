@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
             return res.json(songs.map(s => ({
                 songId: s.id, title: s.title, originalArtist: s.original_artist, coverArtist: s.cover_artist,
                 audioUrl: s.audio_file, albumId: s.album_id, albumTitle: s.album_title,
-                albumCover: s.album_cover, coverImage: s.cover_image, likes: s.likes, lyrics: s.lyrics,
+                albumCover: s.album_cover, coverImage: s.cover_image, likes: s.likes, plays: s.plays || 0, lyrics: s.lyrics,
                 userId: s.user_id, createdAt: s.created_at
             })));
         } catch (error) {
@@ -97,6 +97,42 @@ module.exports = async function handler(req, res) {
             audioUrl: s.audio_file, albumId: s.album_id, albumCover: s.album_cover,
             coverImage: s.cover_image, likes: s.likes, userId: s.user_id, createdAt: s.created_at
         })));
+    }
+
+    // PATCH /songs/:id - Edit song (owner only)
+    if (req.method === 'PATCH' && path.match(/^\d+$/)) {
+        const user = await getAuthUser(req);
+        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+        const songId = path;
+        const [songs] = await pool.query('SELECT user_id FROM songs WHERE id = ?', [songId]);
+        if (songs.length === 0) return res.status(404).json({ error: 'Song not found' });
+        if (songs[0].user_id !== user.id && user.role !== 'admin') {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
+        const { title, originalArtist, lyrics } = req.body;
+        const updates = [];
+        const values = [];
+
+        if (title) { updates.push('title = ?'); values.push(title); }
+        if (originalArtist) { updates.push('original_artist = ?'); values.push(originalArtist); }
+        if (lyrics !== undefined) { updates.push('lyrics = ?'); values.push(lyrics || null); }
+
+        if (updates.length > 0) {
+            values.push(songId);
+            await pool.query(`UPDATE songs SET ${updates.join(', ')} WHERE id = ?`, values);
+        }
+
+        return res.json({ success: true });
+    }
+
+    // POST /songs/:id/play - Increment play count
+    if (req.method === 'POST' && path.match(/^\d+\/play$/)) {
+        const songId = path.split('/')[0];
+        await pool.query('UPDATE songs SET plays = COALESCE(plays, 0) + 1 WHERE id = ?', [songId]);
+        const [result] = await pool.query('SELECT plays FROM songs WHERE id = ?', [songId]);
+        return res.json({ plays: result[0]?.plays || 0 });
     }
 
     // POST /songs/:id/like

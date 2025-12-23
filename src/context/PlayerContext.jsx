@@ -140,6 +140,14 @@ export const PlayerProvider = ({ children }) => {
             try {
                 await audio.play();
                 setIsPlaying(true);
+
+                // Track play count
+                try {
+                    const api = (await import('../services/api')).default;
+                    api.playSong(song.songId);
+                } catch (e) {
+                    // Ignore tracking errors
+                }
             } catch (error) {
                 console.error('Play error:', error);
                 setIsPlaying(false);
