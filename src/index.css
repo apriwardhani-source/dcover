@@ -1,0 +1,421 @@
+@import "tailwindcss";
+
+/* ========================================
+   CUSTOM PROPERTIES (CSS Variables)
+   ======================================== */
+
+:root {
+  --color-primary: #14b8a6;
+  --color-primary-dark: #0d9488;
+  --color-primary-light: #5eead4;
+
+  --color-bg: #0a0a0a;
+  --color-background: #0a0a0a;
+  --color-surface: #141414;
+  --color-surface-hover: #1f1f1f;
+  --color-surface-active: #2a2a2a;
+
+  --color-text: #ffffff;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+
+  --color-border: #27272a;
+  --shadow-card: none;
+}
+
+/* Light Theme Enhancement */
+[data-theme="light"] {
+  --color-bg: #f8fafc;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f1f5f9;
+  --color-surface-active: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-primary: #0d9488;
+  --color-primary-dark: #0f766e;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .card {
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .input {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: #cbd5e1;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Spotify-style gradient mesh background */
+.gradient-mesh {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -20%, rgba(20, 184, 166, 0.3), transparent),
+    radial-gradient(ellipse 60% 40% at 80% -10%, rgba(13, 148, 136, 0.2), transparent);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.8;
+}
+
+[data-theme="light"] .gradient-mesh {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -20%, rgba(20, 184, 166, 0.15), transparent),
+    radial-gradient(ellipse 60% 40% at 80% -10%, rgba(13, 148, 136, 0.1), transparent);
+}
+
+/* Noise texture overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+[data-theme="light"] .noise-overlay {
+  opacity: 0.03;
+}
+
+/* Dynamic color extraction background - applied via JS */
+.dynamic-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60vh;
+  background: linear-gradient(180deg, var(--dynamic-color, rgba(20, 184, 166, 0.2)) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.5s ease;
+}
+
+/* Glassmorphism cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Glow effects */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+}
+
+.glow-primary:hover {
+  box-shadow: 0 0 30px rgba(20, 184, 166, 0.5);
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg,
+      var(--color-surface-hover) 25%,
+      var(--color-surface-active) 50%,
+      var(--color-surface-hover) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-hover);
+  border-radius: 4px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+
+.gradient-primary {
+  background: var(--color-primary);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(20, 184, 166, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(20, 184, 166, 0.5);
+  }
+}
+
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: scaleY(0.5);
+  }
+
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ========================================
+   COMPONENTS
+   ======================================== */
+
+.card {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 16px;
+  transition: background 0.2s ease;
+}
+
+.card:hover {
+  background: var(--color-surface-hover);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: black;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-light);
+  transform: scale(1.02);
+}
+
+.btn-secondary {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface-active);
+}
+
+.input {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   PLAYING INDICATOR
+   ======================================== */
+
+.playing-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.wave-bar {
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 2px;
+  animation: wave 0.5s ease-in-out infinite;
+}
+
+.wave-bar:nth-child(1) {
+  animation-delay: 0s;
+  height: 60%;
+}
+
+.wave-bar:nth-child(2) {
+  animation-delay: 0.1s;
+  height: 100%;
+}
+
+.wave-bar:nth-child(3) {
+  animation-delay: 0.2s;
+  height: 80%;
+}
+
+.wave-bar:nth-child(4) {
+  animation-delay: 0.3s;
+  height: 40%;
+}
+
+/* ========================================
+   LAYOUT
+   ======================================== */
+
+.pb-player {
+  padding-bottom: 180px;
+}
+
+@media (min-width: 768px) {
+  .pb-player {
+    padding-bottom: 120px;
+  }
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* ========================================
+   RANGE INPUTS
+   ======================================== */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-surface-active);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  margin-top: -4px;
+}

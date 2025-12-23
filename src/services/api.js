@@ -1,0 +1,287 @@
+import { API_BASE_URL } from '../config';
+
+class ApiService {
+    constructor() {
+        this.token = localStorage.getItem('token');
+    }
+
+    setToken(token) {
+        this.token = token;
+        if (token) {
+            localStorage.setItem('token', token);
+        } else {
+            localStorage.removeItem('token');
+        }
+    }
+
+    getToken() {
+        return this.token || localStorage.getItem('token');
+    }
+
+    async request(endpoint, options = {}) {
+        const url = `${API_BASE_URL}${endpoint}`;
+        const headers = {
+            ...options.headers,
+        };
+
+        if (this.getToken()) {
+            headers['Authorization'] = `Bearer ${this.getToken()}`;
+        }
+
+        // Don't set Content-Type for FormData
+        if (!(options.body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers,
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Request failed' }));
+            throw new Error(error.error || 'Request failed');
+        }
+
+        return response.json();
+    }
+
+    // Auth
+    async loginWithGoogle(userData) {
+        const data = await this.request('/auth/google', {
+            method: 'POST',
+            body: JSON.stringify(userData),
+        });
+        this.setToken(data.token);
+        return data;
+    }
+
+    async getCurrentUser() {
+        return this.request('/auth/me');
+    }
+
+    logout() {
+        this.setToken(null);
+    }
+
+    // Songs
+    async getSongs() {
+        return this.request('/songs');
+    }
+
+    async getUserSongs(userId) {
+        return this.request(`/songs/user/${userId}`);
+    }
+
+    async getAlbumSongs(albumId) {
+        return this.request(`/songs/album/${albumId}`);
+    }
+
+    async uploadSong(formData) {
+        return this.request('/songs', {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async updateSongCover(songId, formData) {
+        return this.request(`/songs/${songId}/cover`, {
+            method: 'PATCH',
+            body: formData,
+        });
+    }
+
+    async likeSong(songId) {
+        return this.request(`/songs/${songId}/like`, {
+            method: 'POST',
+        });
+    }
+
+    async getLikedSongs(userId) {
+        return this.request(`/songs/liked/${userId}`);
+    }
+
+    async deleteSong(songId) {
+        return this.request(`/songs/${songId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    // Albums
+    async getAlbums() {
+        return this.request('/albums');
+    }
+
+    async getAlbum(albumId) {
+        return this.request(`/albums/${albumId}`);
+    }
+
+    async getUserAlbums(userId) {
+        return this.request(`/albums/user/${userId}`);
+    }
+
+    async createAlbum(formData) {
+        return this.request('/albums', {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async updateAlbumCover(albumId, formData) {
+        return this.request(`/albums/${albumId}/cover`, {
+            method: 'PATCH',
+            body: formData,
+        });
+    }
+
+    async deleteAlbum(albumId) {
+        return this.request(`/albums/${albumId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    // Users (Admin)
+    async getUsers() {
+        return this.request('/users');
+    }
+
+    async suspendUser(userId, suspended) {
+        return this.request(`/users/${userId}/suspend`, {
+            method: 'PATCH',
+            body: JSON.stringify({ suspended }),
+        });
+    }
+
+    async getUserProfile(userId) {
+        return this.request(`/users/${userId}`);
+    }
+
+    // Profile
+    async updateProfile(data) {
+        return this.request('/users/profile', {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateProfilePhoto(formData) {
+        return this.request('/users/profile/photo', {
+            method: 'PATCH',
+            body: formData,
+        });
+    }
+
+    // Admin - User Role
+    async changeUserRole(userId, role) {
+        return this.request(`/users/${userId}/role`, {
+            method: 'PATCH',
+            body: JSON.stringify({ role }),
+        });
+    }
+
+    // Banners
+    async getBanners() {
+        return this.request('/banners');
+    }
+
+    async getAllBanners() {
+        return this.request('/banners/all');
+    }
+
+    async createBanner(formData) {
+        return this.request('/banners', {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async updateBanner(id, formData) {
+        return this.request(`/banners/${id}`, {
+            method: 'PATCH',
+            body: formData,
+        });
+    }
+
+    async deleteBanner(id) {
+        return this.request(`/banners/${id}`, {
+            method: 'DELETE',
+        });
+    }
+
+    async toggleBanner(id) {
+        return this.request(`/banners/${id}/toggle`, {
+            method: 'PATCH',
+        });
+    }
+
+    // Dashboard Stats
+    async getStats() {
+        const [users, songs, albums] = await Promise.all([
+            this.request('/users'),
+            this.request('/songs'),
+            this.request('/albums')
+        ]);
+
+        const totalLikes = songs.reduce((acc, s) => acc + (s.likes || 0), 0);
+        const today = new Date().toDateString();
+        const newToday = songs.filter(s => new Date(s.createdAt).toDateString() === today).length;
+
+        return {
+            totalUsers: users.length,
+            totalSongs: songs.length,
+            totalAlbums: albums.length,
+            totalLikes,
+            newSongsToday: newToday,
+            recentSongs: songs.slice(0, 5),
+            topSongs: [...songs].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 5)
+        };
+    }
+
+    // Comments
+    async getComments(songId) {
+        return this.request(`/comments/song/${songId}`);
+    }
+
+    async addComment(songId, content) {
+        return this.request('/comments', {
+            method: 'POST',
+            body: JSON.stringify({ songId, content }),
+        });
+    }
+
+    async deleteComment(commentId) {
+        return this.request(`/comments/${commentId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    // Follows
+    async followUser(userId) {
+        return this.request(`/follows/${userId}`, {
+            method: 'POST',
+        });
+    }
+
+    async unfollowUser(userId) {
+        return this.request(`/follows/${userId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    async checkFollowing(userId) {
+        return this.request(`/follows/check/${userId}`);
+    }
+
+    async getFollowersCount(userId) {
+        return this.request(`/follows/followers/${userId}`);
+    }
+
+    async getFollowingCount(userId) {
+        return this.request(`/follows/following/${userId}`);
+    }
+}
+
+export const api = new ApiService();
+export default api;
+
+
