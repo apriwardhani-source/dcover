@@ -27,6 +27,39 @@ module.exports = async function handler(req, res) {
         }
     }
 
+    // POST /songs - Create song (URL already uploaded to Cloudinary)
+    if (req.method === 'POST' && path === '') {
+        const user = await getAuthUser(req);
+        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+        try {
+            const { title, originalArtist, audioUrl, coverImage, albumId, lyrics } = req.body;
+
+            if (!title || !originalArtist || !audioUrl) {
+                return res.status(400).json({ error: 'Title, original artist, and audio URL are required' });
+            }
+
+            const [result] = await pool.query(
+                `INSERT INTO songs (title, original_artist, audio_file, cover_image, album_id, user_id, lyrics, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+                [title, originalArtist, audioUrl, coverImage || null, albumId || null, user.id, lyrics || null]
+            );
+
+            return res.status(201).json({
+                songId: result.insertId,
+                title,
+                originalArtist,
+                audioUrl,
+                coverImage,
+                albumId,
+                userId: user.id
+            });
+        } catch (error) {
+            console.error('Create song error:', error);
+            return res.status(500).json({ error: 'Failed to create song' });
+        }
+    }
+
     // GET /songs/liked/:userId
     if (req.method === 'GET' && path.startsWith('liked/')) {
         const user = await getAuthUser(req);

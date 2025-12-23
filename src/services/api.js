@@ -77,11 +77,44 @@ class ApiService {
         return this.request(`/songs/album/${albumId}`);
     }
 
+    // Helper to upload file directly to Cloudinary
+    async uploadToCloudinary(file, resourceType = 'auto') {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'ml_default');
+        formData.append('cloud_name', 'dzz91k3ky');
+
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/dzz91k3ky/${resourceType}/upload`,
+            { method: 'POST', body: formData }
+        );
+
+        if (!response.ok) throw new Error('Upload to Cloudinary failed');
+        return await response.json();
+    }
+
     async uploadSong(data) {
-        // For Vercel + Cloudinary, send JSON with base64 data
-        return this.request('/upload/song', {
+        // Upload audio directly to Cloudinary
+        const audioResult = await this.uploadToCloudinary(data.audioFile, 'video');
+
+        // Upload cover if exists
+        let coverUrl = null;
+        if (data.coverFile) {
+            const coverResult = await this.uploadToCloudinary(data.coverFile, 'image');
+            coverUrl = coverResult.secure_url;
+        }
+
+        // Save to database via API
+        return this.request('/songs', {
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({
+                title: data.title,
+                originalArtist: data.originalArtist,
+                audioUrl: audioResult.secure_url,
+                coverImage: coverUrl,
+                albumId: data.albumId,
+                lyrics: data.lyrics
+            }),
         });
     }
 
@@ -122,10 +155,20 @@ class ApiService {
     }
 
     async createAlbum(data) {
-        // For Vercel + Cloudinary, send JSON with base64 data
-        return this.request('/upload/album', {
+        // Upload cover directly to Cloudinary if exists
+        let coverUrl = null;
+        if (data.coverFile) {
+            const coverResult = await this.uploadToCloudinary(data.coverFile, 'image');
+            coverUrl = coverResult.secure_url;
+        }
+
+        // Save to database via API
+        return this.request('/albums', {
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({
+                title: data.title,
+                coverImage: coverUrl
+            }),
         });
     }
 

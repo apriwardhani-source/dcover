@@ -103,31 +103,24 @@ const Upload = () => {
             let albumId = null;
 
             if (albumOption === 'new') {
-                const albumData = { title: newAlbumTitle };
-                if (newAlbumCover) {
-                    albumData.coverData = await fileToBase64(newAlbumCover);
-                }
-                const albumResult = await api.createAlbum(albumData);
+                const albumResult = await api.createAlbum({
+                    title: newAlbumTitle,
+                    coverFile: newAlbumCover
+                });
                 albumId = albumResult.albumId;
             } else if (albumOption === 'existing' && selectedAlbum) {
                 albumId = selectedAlbum.albumId;
             }
 
-            // Convert audio and cover to base64
-            const audioData = await fileToBase64(audioFile);
-            const songData = {
+            // Send file objects directly - api.js will handle Cloudinary upload
+            await api.uploadSong({
                 title: songTitle,
                 originalArtist: originalArtist,
-                audioData: audioData,
+                audioFile: audioFile,
+                coverFile: coverImage,
                 albumId: albumId,
                 lyrics: lyrics.trim() || null
-            };
-
-            if (coverImage) {
-                songData.coverData = await fileToBase64(coverImage);
-            }
-
-            await api.uploadSong(songData);
+            });
 
             toast.success('Lagu berhasil dipublish! 🎉');
             navigate('/');

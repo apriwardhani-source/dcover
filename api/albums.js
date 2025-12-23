@@ -20,6 +20,35 @@ module.exports = async function handler(req, res) {
         })));
     }
 
+    // POST /albums - Create album (URL already uploaded to Cloudinary)
+    if (req.method === 'POST' && path === '') {
+        const user = await getAuthUser(req);
+        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+        try {
+            const { title, coverImage } = req.body;
+
+            if (!title) {
+                return res.status(400).json({ error: 'Title is required' });
+            }
+
+            const [result] = await pool.query(
+                'INSERT INTO albums (title, cover_image, user_id, created_at) VALUES (?, ?, ?, NOW())',
+                [title, coverImage || null, user.id]
+            );
+
+            return res.status(201).json({
+                albumId: result.insertId,
+                title,
+                coverImage,
+                userId: user.id
+            });
+        } catch (error) {
+            console.error('Create album error:', error);
+            return res.status(500).json({ error: 'Failed to create album' });
+        }
+    }
+
     // GET /albums/user/:userId
     if (req.method === 'GET' && path.startsWith('user/')) {
         const userId = path.split('/')[1];
