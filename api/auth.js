@@ -56,9 +56,14 @@ module.exports = async function handler(req, res) {
                     await pool.query('UPDATE users SET username = ? WHERE id = ?', [username, user.id]);
                     user.username = username;
                 }
-                if (photoURL && photoURL !== user.photo_url) {
-                    await pool.query('UPDATE users SET photo_url = ? WHERE id = ?', [photoURL, user.id]);
-                    user.photo_url = photoURL;
+                // Only update photo if it's currently empty or it's still a Google default photo
+                // This prevents manual uploads (Cloudinary) from being overwritten on every login
+                const isGooglePhoto = (url) => url && (url.includes('googleusercontent.com') || url.includes('lh3.googleusercontent.com'));
+                if (photoURL && (!user.photo_url || isGooglePhoto(user.photo_url))) {
+                    if (photoURL !== user.photo_url) {
+                        await pool.query('UPDATE users SET photo_url = ? WHERE id = ?', [photoURL, user.id]);
+                        user.photo_url = photoURL;
+                    }
                 }
             }
 

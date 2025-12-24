@@ -40,9 +40,13 @@ router.post('/google', async (req, res) => {
             user = users[0];
 
             // Update photo if changed
-            if (photoURL && photoURL !== user.photo_url) {
-                await db.query('UPDATE users SET photo_url = ? WHERE id = ?', [photoURL, user.id]);
-                user.photo_url = photoURL;
+            // Only update photo if it's currently empty or it's still a Google default photo
+            const isGooglePhoto = (url) => url && (url.includes('googleusercontent.com') || url.includes('lh3.googleusercontent.com'));
+            if (photoURL && (!user.photo_url || isGooglePhoto(user.photo_url))) {
+                if (photoURL !== user.photo_url) {
+                    await db.query('UPDATE users SET photo_url = ? WHERE id = ?', [photoURL, user.id]);
+                    user.photo_url = photoURL;
+                }
             }
         }
 
