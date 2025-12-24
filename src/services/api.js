@@ -138,6 +138,12 @@ class ApiService {
         });
     }
 
+    async toggleSongVisibility(songId) {
+        return this.request(`/songs/${songId}/visibility`, {
+            method: 'PATCH',
+        });
+    }
+
     async likeSong(songId) {
         return this.request(`/songs/${songId}/like`, {
             method: 'POST',

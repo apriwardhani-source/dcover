@@ -5,7 +5,7 @@ import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera, Users } from 'lucide-react';
+import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera, Users, Eye, EyeOff } from 'lucide-react';
 
 import { API_URL } from '../config';
 
@@ -117,6 +117,17 @@ const Profile = () => {
             loadData();
         } catch (error) {
             toast.error('Gagal menghapus');
+        }
+        setMenuOpen(null);
+    };
+
+    const handleToggleVisibility = async (song) => {
+        try {
+            const result = await api.toggleSongVisibility(song.songId);
+            toast.success(result.isPublic ? 'Lagu sekarang publik' : 'Lagu sekarang privat');
+            loadData();
+        } catch (error) {
+            toast.error('Gagal mengubah visibilitas');
         }
         setMenuOpen(null);
     };
@@ -254,6 +265,7 @@ const Profile = () => {
                         {songs.map((song, index) => {
                             const isCurrent = currentSong?.songId === song.songId;
                             const cover = song.coverImage || song.albumCover;
+                            const isPrivate = song.isPublic === false;
                             return (
                                 <div key={song.songId} className={`group flex items-center gap-4 p-3 rounded-lg ${isCurrent ? 'bg-[var(--color-surface-active)]' : 'hover:bg-[var(--color-surface-hover)]'}`}>
                                     <div onClick={() => playSong(song, songs, index)} className="relative w-12 h-12 rounded overflow-hidden bg-[var(--color-surface-hover)] cursor-pointer flex-shrink-0">
@@ -263,7 +275,14 @@ const Profile = () => {
                                         </div>
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className={`font-medium truncate ${isCurrent ? 'text-[var(--color-primary)]' : ''}`}>{song.title}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className={`font-medium truncate ${isCurrent ? 'text-[var(--color-primary)]' : ''}`}>{song.title}</p>
+                                            {isPrivate && (
+                                                <span className="flex items-center gap-1 text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded">
+                                                    <EyeOff className="w-3 h-3" /> Privat
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className="text-sm text-[var(--color-text-secondary)] truncate">Cover of {song.originalArtist}</p>
                                     </div>
                                     <span className="hidden sm:block text-[var(--color-text-secondary)]">{song.likes || 0} ❤️</span>
@@ -271,6 +290,10 @@ const Profile = () => {
                                         <button onClick={() => setMenuOpen(menuOpen === song.songId ? null : song.songId)} className="p-2"><MoreVertical className="w-5 h-5" /></button>
                                         {menuOpen === song.songId && (
                                             <div className="absolute right-0 top-full w-48 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-xl z-10">
+                                                <button onClick={() => handleToggleVisibility(song)} className="flex items-center gap-3 w-full px-4 py-3 hover:bg-[var(--color-surface-hover)]">
+                                                    {isPrivate ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                                    {isPrivate ? 'Jadikan Publik' : 'Jadikan Privat'}
+                                                </button>
                                                 <button onClick={() => { setEditingCover({ type: 'songs', id: song.songId }); coverInputRef.current?.click(); setMenuOpen(null); }} className="flex items-center gap-3 w-full px-4 py-3 hover:bg-[var(--color-surface-hover)]"><Image className="w-4 h-4" />Edit Cover</button>
                                                 <button onClick={() => handleDeleteSong(song)} className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-[var(--color-surface-hover)]"><Trash2 className="w-4 h-4" />Hapus</button>
                                             </div>
