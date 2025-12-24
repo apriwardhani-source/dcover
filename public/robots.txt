@@ -1,0 +1,14 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://dcover.vercel.app/sitemap.xml
+
+# Google bot
+User-agent: Googlebot
+Allow: /
+
+# Bing bot
+User-agent: Bingbot
+Allow: /
