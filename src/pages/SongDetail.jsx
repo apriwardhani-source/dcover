@@ -28,16 +28,29 @@ const SongDetail = () => {
 
     const loadSong = async () => {
         try {
-            const songs = await api.getSongs();
+            // Extract numeric ID from slug format (e.g., "123-song-title" -> 123)
             const songId = parseInt(id.split('-')[0]);
-            const foundSong = songs.find(s => s.songId === songId);
+            if (isNaN(songId)) {
+                setLoading(false);
+                return;
+            }
+
+            // Try to get song directly by ID first
+            let foundSong = null;
+            try {
+                foundSong = await api.request(`/songs/${songId}`);
+            } catch (e) {
+                // Fallback: search in all songs
+                const songs = await api.getSongs();
+                foundSong = songs.find(s => s.songId === songId);
+            }
 
             if (foundSong) {
                 setSong(foundSong);
 
                 if (user) {
                     const likedSongs = await api.getLikedSongs(user.id);
-                    setIsLiked(likedSongs.includes(foundSong.songId));
+                    setIsLiked(likedSongs.includes(foundSong.songId || songId));
                 }
 
                 if (foundSong.userId) {
