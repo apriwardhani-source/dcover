@@ -389,8 +389,20 @@ body {
   }
 }
 
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-mt {
+  margin-top: env(safe-area-inset-top, 0);
+}
+
+.safe-mb {
+  margin-bottom: env(safe-area-inset-bottom, 0);
 }
 
 /* ========================================

@@ -205,3 +205,4 @@ module.exports = async function handler(req, res) {
         console.error('Songs API error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
+};

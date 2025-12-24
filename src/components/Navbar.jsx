@@ -56,7 +56,7 @@ const Navbar = () => {
     return (
         <>
             {/* Mobile Top Header */}
-            <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-black/90 backdrop-blur-sm border-b border-[var(--color-border)] z-50 flex items-center justify-between px-4">
+            <header className="md:hidden fixed top-0 left-0 right-0 h-[calc(3.5rem+env(safe-area-inset-top))] bg-black/95 backdrop-blur-md border-b border-[var(--color-border)] z-50 flex items-end justify-between px-4 pb-3 safe-top">
                 <Link to="/" className="flex items-center gap-2">
                     <img src="/logo.jpg" alt="dcover" className="w-8 h-8 rounded-lg object-cover" />
                     <span className="font-bold text-lg">dcover</span>
