@@ -19,10 +19,14 @@ module.exports = async function handler(req, res) {
         await pool.query('INSERT INTO follows (follower_id, following_id, created_at) VALUES (?, ?, NOW())', [user.id, followingId]);
 
         // Create notification for the followed user
-        await pool.query(
-            'INSERT INTO notifications (user_id, from_user_id, type, message, created_at) VALUES (?, ?, ?, ?, NOW())',
-            [followingId, user.id, 'follow', `${user.name} mulai mengikuti kamu`]
-        );
+        try {
+            await pool.query(
+                'INSERT INTO notifications (user_id, from_user_id, type, message, created_at) VALUES (?, ?, ?, ?, NOW())',
+                [followingId, user.id, 'follow', `${user.name} mulai mengikuti kamu`]
+            );
+        } catch (notifError) {
+            console.error('Notification insert error:', notifError);
+        }
 
         return res.json({ success: true, following: true });
     }

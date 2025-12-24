@@ -185,10 +185,14 @@ module.exports = async function handler(req, res) {
             // Get song owner and create notification (don't notify if liking own song)
             const [song] = await pool.query('SELECT user_id, title FROM songs WHERE id = ?', [songId]);
             if (song.length > 0 && song[0].user_id !== user.id) {
-                await pool.query(
-                    'INSERT INTO notifications (user_id, from_user_id, type, message, related_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
-                    [song[0].user_id, user.id, 'like', `${user.name} menyukai lagu "${song[0].title}"`, songId]
-                );
+                try {
+                    await pool.query(
+                        'INSERT INTO notifications (user_id, from_user_id, type, message, related_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+                        [song[0].user_id, user.id, 'like', `${user.name} menyukai lagu "${song[0].title}"`, songId]
+                    );
+                } catch (notifError) {
+                    console.error('Notification insert error:', notifError);
+                }
             }
 
             return res.json({ liked: true });
