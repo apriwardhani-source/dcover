@@ -52,8 +52,20 @@ const Upload = () => {
     const handleAudioSelect = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/ogg'];
-        if (!validTypes.includes(file.type)) { toast.error('Format audio tidak didukung'); return; }
+
+        // Check by extension first (more reliable on iOS)
+        const fileName = file.name.toLowerCase();
+        const validExtensions = ['.mp3', '.wav', '.webm', '.ogg', '.m4a', '.aac', '.mp4'];
+        const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+
+        // Also check MIME type for browsers that report it properly
+        const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/m4a', 'video/mp4'];
+        const hasValidType = !file.type || validTypes.includes(file.type) || file.type.startsWith('audio/');
+
+        if (!hasValidExtension && !hasValidType) {
+            toast.error('Format audio tidak didukung. Gunakan MP3, WAV, M4A, dll.');
+            return;
+        }
         if (file.size > 20 * 1024 * 1024) { toast.error('Ukuran file maksimal 20MB'); return; }
         setAudioFile(file);
         setAudioPreviewUrl(URL.createObjectURL(file));
