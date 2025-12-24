@@ -4,6 +4,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, ChevronUp, Chevro
 import toast from 'react-hot-toast';
 
 import { API_URL } from '../config';
+import { getImageUrl } from '../utils/url';
 
 const MusicPlayer = () => {
     const {
@@ -24,9 +25,7 @@ const MusicPlayer = () => {
     const progress = (duration > 0 && isFinite(duration)) ? (currentTime / duration) * 100 : 0;
 
     const getCoverImage = () => {
-        if (currentSong.coverImage) return `${API_URL}${currentSong.coverImage}`;
-        if (currentSong.albumCover) return `${API_URL}${currentSong.albumCover}`;
-        return null;
+        return getImageUrl(currentSong.coverImage || currentSong.albumCover, null);
     };
 
     const handleShare = async () => {
@@ -65,7 +64,7 @@ const MusicPlayer = () => {
                                 <span className="text-sm text-[var(--color-text-muted)] w-6">{index + 1}</span>
                                 <div className="w-10 h-10 rounded overflow-hidden bg-[var(--color-surface-hover)]">
                                     {(song.coverImage || song.albumCover) ? (
-                                        <img src={`${API_URL}${song.coverImage || song.albumCover}`} className="w-full h-full object-cover" />
+                                        <img src={getImageUrl(song.coverImage || song.albumCover)} className="w-full h-full object-cover" />
                                     ) : <div className="w-full h-full flex items-center justify-center"><Music2 className="w-4 h-4 text-[var(--color-text-muted)]" /></div>}
                                 </div>
                                 <div className="flex-1 min-w-0">

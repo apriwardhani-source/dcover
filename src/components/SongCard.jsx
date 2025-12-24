@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 import { API_URL } from '../config';
+import { getImageUrl } from '../utils/url';
 
 const SongCard = ({ song, songs, index, onLikeChange }) => {
     const { playSong, currentSong, isPlaying } = usePlayer();
@@ -32,9 +33,7 @@ const SongCard = ({ song, songs, index, onLikeChange }) => {
     };
 
     const getCoverImage = () => {
-        if (song.coverImage) return `${API_URL}${song.coverImage}`;
-        if (song.albumCover) return `${API_URL}${song.albumCover}`;
-        return null;
+        return getImageUrl(song.coverImage || song.albumCover, null);
     };
 
     return (

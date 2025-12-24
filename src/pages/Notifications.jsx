@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getImageUrl } from '../utils/url';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { NotificationsSkeleton } from '../components/Skeletons';
@@ -92,7 +93,7 @@ const Notifications = () => {
                             <div className="relative">
                                 {n.fromUser?.photoURL ? (
                                     <img
-                                        src={n.fromUser.photoURL.startsWith('http') ? n.fromUser.photoURL : `${API_URL}${n.fromUser.photoURL}`}
+                                        src={getImageUrl(n.fromUser.photoURL)}
                                         alt=""
                                         className="w-12 h-12 rounded-full object-cover"
                                     />

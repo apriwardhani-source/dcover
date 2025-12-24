@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { getImageUrl } from '../utils/url';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import SongCard from '../components/SongCard';
@@ -121,7 +122,7 @@ const Home = () => {
                             <a key={banner.id} href={banner.link_url || '#'} target={banner.link_url ? '_blank' : '_self'} rel="noopener noreferrer"
                                 className={`absolute inset-0 transition-opacity duration-500 ${index === currentBanner ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                                 {banner.image_url ? (
-                                    <img src={`${API_URL}${banner.image_url}`} alt={banner.title} className="w-full h-full object-cover" />
+                                    <img src={getImageUrl(banner.image_url)} alt={banner.title} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center">
                                         <span className="text-2xl font-bold text-white">{banner.title}</span>
@@ -230,7 +231,7 @@ const Home = () => {
                                     <Link key={album.albumId} to={`/album/${album.albumId}`} className="card hover-lift">
                                         <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
                                             {album.coverImage ? (
-                                                <img src={`${API_URL}${album.coverImage}`} alt={album.title} className="w-full h-full object-cover" />
+                                                <img src={getImageUrl(album.coverImage)} alt={album.title} className="w-full h-full object-cover" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center">
                                                     <Music2 className="w-12 h-12 text-[var(--color-text-muted)]" />

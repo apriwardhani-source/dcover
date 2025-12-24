@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getImageUrl } from '../utils/url';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePlayer } from '../context/PlayerContext';
@@ -123,7 +124,7 @@ const UserProfile = () => {
 
     const getPhotoUrl = () => {
         if (profile?.photoURL?.startsWith('http')) return profile.photoURL;
-        if (profile?.photoURL) return `${API_URL}${profile.photoURL}`;
+        if (profile?.photoURL) return getImageUrl(profile.photoURL);
         return '/default-avatar.png';
     };
 
@@ -195,7 +196,7 @@ const UserProfile = () => {
                         {songs.map((song, index) => {
                             const isCurrent = currentSong?.songId === song.songId;
                             const cover = song.coverImage || song.albumCover;
-                            const coverUrl = cover?.startsWith('http') ? cover : `${API_URL}${cover}`;
+                            const coverUrl = getImageUrl(cover);
 
                             return (
                                 <div key={song.songId} className={`flex items-center gap-4 p-3 rounded-lg hover:bg-[var(--color-surface-hover)] transition-colors ${isCurrent ? 'bg-[var(--color-surface-hover)]' : ''}`}>
@@ -236,7 +237,7 @@ const UserProfile = () => {
                 albums.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {albums.map(album => {
-                            const coverUrl = album.coverImage?.startsWith('http') ? album.coverImage : `${API_URL}${album.coverImage}`;
+                            const coverUrl = getImageUrl(album.coverImage);
                             return (
                                 <Link key={album.albumId} to={`/album/${album.albumId}`} className="group">
                                     <div className="aspect-square rounded-xl overflow-hidden bg-[var(--color-surface-hover)] mb-2">

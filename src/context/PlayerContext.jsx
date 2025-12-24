@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import { extractDominantColor, applyDynamicGradient, resetGradient } from '../utils/colorExtractor';
+import { getAudioUrl, getImageUrl } from '../utils/url';
 
 const PlayerContext = createContext({});
 
@@ -117,18 +118,14 @@ export const PlayerProvider = ({ children }) => {
                 setIsPlaying(true);
             }
         } else {
-            let audioUrl = song.audioUrl;
-            if (audioUrl && !audioUrl.startsWith('http') && !audioUrl.startsWith('blob:')) {
-                audioUrl = `${API_URL}${audioUrl}`;
-            }
-
+            const audioUrl = getAudioUrl(song.audioUrl);
             setCurrentSong(song);
 
             // Extract dominant color from cover art
             const coverUrl = song.coverImage || song.albumCover;
-            let fullCoverUrl = null;
+            const fullCoverUrl = getImageUrl(coverUrl);
+
             if (coverUrl) {
-                fullCoverUrl = coverUrl.startsWith('http') ? coverUrl : `${API_URL}${coverUrl}`;
                 extractDominantColor(fullCoverUrl).then(color => {
                     applyDynamicGradient(color);
                 });
@@ -138,7 +135,7 @@ export const PlayerProvider = ({ children }) => {
 
             // Set Media Session metadata for lock screen
             if ('mediaSession' in navigator) {
-                const artwork = fullCoverUrl ? [
+                const artwork = coverUrl ? [
                     { src: fullCoverUrl, sizes: '96x96', type: 'image/jpeg' },
                     { src: fullCoverUrl, sizes: '128x128', type: 'image/jpeg' },
                     { src: fullCoverUrl, sizes: '192x192', type: 'image/jpeg' },

@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { MessageCircle, Send, Trash2, Loader2 } from 'lucide-react';
+import { getImageUrl } from '../utils/url';
 
 import { API_URL } from '../config';
 
@@ -79,7 +80,7 @@ const Comments = ({ songId }) => {
             {user ? (
                 <form onSubmit={handleSubmit} className="flex gap-3 mb-6">
                     <img
-                        src={user.photoURL?.startsWith('http') ? user.photoURL : (user.photoURL ? `${API_URL}${user.photoURL}` : '/logo.jpg')}
+                        src={getImageUrl(user.photoURL, '/logo.jpg')}
                         alt={user.name}
                         className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                     />
@@ -117,7 +118,7 @@ const Comments = ({ songId }) => {
                     {comments.map((comment) => (
                         <div key={comment.id} className="flex gap-3 group">
                             <img
-                                src={comment.userPhoto?.startsWith('http') ? comment.userPhoto : (comment.userPhoto ? `${API_URL}${comment.userPhoto}` : '/logo.jpg')}
+                                src={getImageUrl(comment.userPhoto, '/logo.jpg')}
                                 alt={comment.userName}
                                 className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                             />

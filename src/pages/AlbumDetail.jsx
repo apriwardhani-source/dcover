@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getImageUrl } from '../utils/url';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { usePlayer } from '../context/PlayerContext';
@@ -92,7 +93,7 @@ const AlbumDetail = () => {
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-8">
                 <div className="w-48 h-48 md:w-56 md:h-56 flex-shrink-0 mx-auto md:mx-0 rounded-lg overflow-hidden shadow-2xl">
-                    {album.coverImage ? <img src={`${API_URL}${album.coverImage}`} alt={album.title} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[var(--color-surface-hover)] flex items-center justify-center"><Music2 className="w-20 h-20 text-[var(--color-text-muted)]" /></div>}
+                    {album.coverImage ? <img src={getImageUrl(album.coverImage)} alt={album.title} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[var(--color-surface-hover)] flex items-center justify-center"><Music2 className="w-20 h-20 text-[var(--color-text-muted)]" /></div>}
                 </div>
                 <div className="flex flex-col justify-end text-center md:text-left">
                     <span className="text-sm font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">Album</span>
@@ -124,7 +125,7 @@ const AlbumDetail = () => {
                                 </div>
                                 <div className="flex items-center gap-3 min-w-0">
                                     <div className="md:hidden w-10 h-10 rounded-md overflow-hidden flex-shrink-0 bg-[var(--color-surface-hover)]">
-                                        {song.coverImage || album.coverImage ? <img src={`${API_URL}${song.coverImage || album.coverImage}`} className="w-full h-full object-cover" /> : <Music2 className="w-5 h-5 text-[var(--color-text-muted)] m-auto" />}
+                                        {song.coverImage || album.coverImage ? <img src={getImageUrl(song.coverImage || album.coverImage)} className="w-full h-full object-cover" /> : <Music2 className="w-5 h-5 text-[var(--color-text-muted)] m-auto" />}
                                     </div>
                                     <div className="min-w-0"><p className={`font-medium truncate ${isCurrent ? 'text-[var(--color-primary)]' : ''}`}>{song.title}</p><p className="text-sm text-[var(--color-text-secondary)] truncate">Cover of {song.originalArtist}</p></div>
                                 </div>

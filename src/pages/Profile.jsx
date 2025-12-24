@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { usePlayer } from '../context/PlayerContext';
 import api from '../services/api';
 import { ProfileSkeleton } from '../components/Skeletons';
+import { getImageUrl } from '../utils/url';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera, Users, Eye, EyeOff, Share2 } from 'lucide-react';
@@ -222,11 +223,7 @@ const Profile = () => {
 
     const totalLikes = songs.reduce((acc, s) => acc + (s.likes || 0), 0);
 
-    const getPhotoUrl = () => {
-        if (user?.photoURL?.startsWith('http')) return user.photoURL;
-        if (user?.photoURL) return `${API_URL}${user.photoURL}`;
-        return '/default-avatar.png';
-    };
+    const getPhotoUrl = () => getImageUrl(user?.photoURL, '/default-avatar.png');
 
     if (loading) return <div className="pb-player"><ProfileSkeleton /></div>;
 
@@ -330,7 +327,7 @@ const Profile = () => {
                             return (
                                 <div key={song.songId} className={`group flex items-center gap-4 p-3 rounded-lg ${isCurrent ? 'bg-[var(--color-surface-active)]' : 'hover:bg-[var(--color-surface-hover)]'}`}>
                                     <div onClick={() => playSong(song, songs, index)} className="relative w-12 h-12 rounded overflow-hidden bg-[var(--color-surface-hover)] cursor-pointer flex-shrink-0">
-                                        {cover ? <img src={`${API_URL}${cover}`} className="w-full h-full object-cover" /> : <Music2 className="w-5 h-5 text-[var(--color-text-muted)] m-auto" />}
+                                        {cover ? <img src={getImageUrl(cover)} className="w-full h-full object-cover" /> : <Music2 className="w-5 h-5 text-[var(--color-text-muted)] m-auto" />}
                                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100">
                                             {isCurrent && isPlaying ? <Pause className="w-5 h-5" fill="currentColor" /> : <Play className="w-5 h-5" fill="currentColor" />}
                                         </div>
@@ -371,7 +368,7 @@ const Profile = () => {
                         <div key={album.albumId} className="group relative">
                             <Link to={`/album/${album.albumId}`} className="card hover-lift block">
                                 <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
-                                    {album.coverImage ? <img src={`${API_URL}${album.coverImage}`} className="w-full h-full object-cover" /> : <Disc className="w-12 h-12 text-[var(--color-text-muted)] m-auto mt-8" />}
+                                    {album.coverImage ? <img src={getImageUrl(album.coverImage)} className="w-full h-full object-cover" /> : <Disc className="w-12 h-12 text-[var(--color-text-muted)] m-auto mt-8" />}
                                 </div>
                                 <h3 className="font-bold truncate">{album.title}</h3>
                                 <p className="text-sm text-[var(--color-text-secondary)]">{album.songCount || 0} lagu</p>

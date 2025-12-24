@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getImageUrl } from '../utils/url';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -119,7 +120,7 @@ const Activity = () => {
                                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--color-surface-hover)]">
                                         {activity.song.coverImage || activity.song.albumCover ? (
                                             <img
-                                                src={`${API_URL}${activity.song.coverImage || activity.song.albumCover}`}
+                                                src={getImageUrl(activity.song.coverImage || activity.song.albumCover)}
                                                 alt={activity.song.title}
                                                 className="w-full h-full object-cover"
                                             />

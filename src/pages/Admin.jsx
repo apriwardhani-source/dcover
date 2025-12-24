@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { getImageUrl } from '../utils/url';
 import api from '../services/api';
 import { AdminSkeleton } from '../components/Skeletons';
 import toast from 'react-hot-toast';
@@ -175,7 +176,7 @@ const Admin = () => {
                                     <div key={song.songId} className="flex items-center gap-4">
                                         <span className="text-2xl font-bold text-[var(--color-text-muted)] w-8">{i + 1}</span>
                                         <div className="w-10 h-10 rounded bg-[var(--color-surface-hover)] overflow-hidden">
-                                            {(song.coverImage || song.albumCover) && <img src={`${API_URL}${song.coverImage || song.albumCover}`} className="w-full h-full object-cover" />}
+                                            {(song.coverImage || song.albumCover) && <img src={getImageUrl(song.coverImage || song.albumCover)} className="w-full h-full object-cover" />}
                                         </div>
                                         <div className="flex-1 min-w-0"><p className="font-medium truncate">{song.title}</p><p className="text-sm text-[var(--color-text-secondary)] truncate">{song.coverArtist}</p></div>
                                         <span className="text-[var(--color-primary)]">❤️ {song.likes || 0}</span>
@@ -192,7 +193,7 @@ const Admin = () => {
                 <div className="space-y-2">
                     {filteredUsers.map(user => (
                         <div key={user.id} className="flex items-center gap-4 p-4 bg-[var(--color-surface)] rounded-lg">
-                            <img src={user.photoURL?.startsWith('http') ? user.photoURL : (user.photoURL ? `${API_URL}${user.photoURL}` : '/logo.jpg')} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
+                            <img src={getImageUrl(user.photoURL, '/logo.jpg')} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
                             <div className="flex-1 min-w-0">
                                 <p className="font-medium truncate">{user.name} {user.suspended && <span className="text-red-500 text-sm">(Suspended)</span>}</p>
                                 <p className="text-sm text-[var(--color-text-secondary)] truncate">{user.email}</p>
@@ -218,7 +219,7 @@ const Admin = () => {
                     {filteredSongs.map(song => (
                         <div key={song.songId} className="flex items-center gap-4 p-4 bg-[var(--color-surface)] rounded-lg">
                             <div className="w-12 h-12 rounded bg-[var(--color-surface-hover)] overflow-hidden flex items-center justify-center">
-                                {song.coverImage || song.albumCover ? <img src={`${API_URL}${song.coverImage || song.albumCover}`} className="w-full h-full object-cover" /> : <Music2 className="w-5 h-5 text-[var(--color-text-muted)]" />}
+                                {song.coverImage || song.albumCover ? <img src={getImageUrl(song.coverImage || song.albumCover)} className="w-full h-full object-cover" /> : <Music2 className="w-5 h-5 text-[var(--color-text-muted)]" />}
                             </div>
                             <div className="flex-1 min-w-0"><p className="font-medium truncate">{song.title}</p><p className="text-sm text-[var(--color-text-secondary)] truncate">by {song.coverArtist}</p></div>
                             <span className="hidden sm:block text-sm text-[var(--color-text-secondary)]">{song.likes || 0} ❤️</span>
@@ -235,7 +236,7 @@ const Admin = () => {
                     {filteredAlbums.map(album => (
                         <div key={album.albumId} className="card group relative">
                             <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)] flex items-center justify-center">
-                                {album.coverImage ? <img src={`${API_URL}${album.coverImage}`} className="w-full h-full object-cover" /> : <Disc className="w-12 h-12 text-[var(--color-text-muted)]" />}
+                                {album.coverImage ? <img src={getImageUrl(album.coverImage)} className="w-full h-full object-cover" /> : <Disc className="w-12 h-12 text-[var(--color-text-muted)]" />}
                             </div>
                             <h3 className="font-bold truncate">{album.title}</h3>
                             <p className="text-sm text-[var(--color-text-secondary)] truncate">by {album.artistName}</p>
@@ -274,7 +275,7 @@ const Admin = () => {
                         {banners.map(banner => (
                             <div key={banner.id} className={`flex items-center gap-4 p-4 bg-[var(--color-surface)] rounded-lg ${!banner.is_active && 'opacity-50'}`}>
                                 <div className="w-20 h-12 rounded bg-[var(--color-surface-hover)] overflow-hidden flex items-center justify-center">
-                                    {banner.image_url ? <img src={`${API_URL}${banner.image_url}`} className="w-full h-full object-cover" /> : <ImageIcon className="w-6 h-6 text-[var(--color-text-muted)]" />}
+                                    {banner.image_url ? <img src={getImageUrl(banner.image_url)} className="w-full h-full object-cover" /> : <ImageIcon className="w-6 h-6 text-[var(--color-text-muted)]" />}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium truncate">{banner.title}</p>

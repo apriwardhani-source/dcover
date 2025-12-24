@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 
 import { API_URL } from '../config';
+import { getImageUrl } from '../utils/url';
 
 const Navbar = () => {
     const { user, isUserAdmin, logout } = useAuth();
@@ -49,9 +50,7 @@ const Navbar = () => {
     const isActive = (path) => location.pathname === path;
 
     const getPhotoUrl = () => {
-        if (!user?.photoURL) return null;
-        if (user.photoURL.startsWith('http')) return user.photoURL;
-        return `${API_URL}${user.photoURL}`;
+        return getImageUrl(user?.photoURL, null);
     };
 
     return (

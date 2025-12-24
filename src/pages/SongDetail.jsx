@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getImageUrl } from '../utils/url';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePlayer } from '../context/PlayerContext';
@@ -97,9 +98,7 @@ const SongDetail = () => {
     const isCurrentlyPlaying = currentSong?.songId === song?.songId && isPlaying;
 
     const getCoverImage = () => {
-        if (song?.coverImage) return `${API_URL}${song.coverImage}`;
-        if (song?.albumCover) return `${API_URL}${song.albumCover}`;
-        return null;
+        return getImageUrl(song?.coverImage || song?.albumCover, null);
     };
 
     if (loading) {

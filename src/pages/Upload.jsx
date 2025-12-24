@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { getImageUrl } from '../utils/url';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -343,7 +344,7 @@ const Upload = () => {
                                     <button key={album.albumId} onClick={() => setSelectedAlbum(album)} className={`p-3 rounded-lg text-left ${selectedAlbum?.albumId === album.albumId ? 'bg-[var(--color-primary)]/10 border border-[var(--color-primary)]' : 'bg-[var(--color-surface-hover)]'}`}>
                                         <div className="flex items-center gap-3">
                                             <div className="w-12 h-12 rounded overflow-hidden bg-[var(--color-surface-active)]">
-                                                {album.coverImage ? <img src={`${API_URL}${album.coverImage}`} className="w-full h-full object-cover" /> : <Disc className="w-6 h-6 text-[var(--color-text-muted)] m-auto mt-3" />}
+                                                {album.coverImage ? <img src={getImageUrl(album.coverImage)} className="w-full h-full object-cover" /> : <Disc className="w-6 h-6 text-[var(--color-text-muted)] m-auto mt-3" />}
                                             </div>
                                             <p className="font-medium truncate">{album.title}</p>
                                         </div>
