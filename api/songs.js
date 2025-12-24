@@ -247,7 +247,16 @@ module.exports = async function handler(req, res) {
                 );
             }
 
-            return res.json({ success: true, message: 'Song updated' });
+            return res.json({
+                success: true,
+                message: 'Song updated',
+                debug: {
+                    id,
+                    receivedFields: Object.keys(data),
+                    updatesPerformed: updates,
+                    coverImageValue: data.coverImage || data.cover_image
+                }
+            });
         } catch (error) {
             console.error('Update song error:', error);
             return res.status(500).json({ error: 'Failed to update song: ' + error.message });

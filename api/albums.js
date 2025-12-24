@@ -119,7 +119,16 @@ module.exports = async function handler(req, res) {
                 );
             }
 
-            return res.json({ success: true, message: 'Album updated' });
+            return res.json({
+                success: true,
+                message: 'Album updated',
+                debug: {
+                    id,
+                    receivedFields: Object.keys(data),
+                    updatesPerformed: updates,
+                    coverImageValue: data.coverImage || data.cover_image
+                }
+            });
         } catch (error) {
             console.error('Update album error:', error);
             return res.status(500).json({ error: 'Failed to update album: ' + error.message });
