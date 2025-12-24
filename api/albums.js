@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
                 SELECT a.*, u.name as artist_name, u.username as artist_username,
                   (SELECT COUNT(*) FROM songs WHERE album_id = a.id) as song_count
                 FROM albums a
-                JOIN users u ON a.user_id = u.id
+                LEFT JOIN users u ON a.user_id = u.id
                 WHERE a.user_id = ?
                 ORDER BY a.created_at DESC
             `, [userId]);
@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
             const [albums] = await pool.query(`
                 SELECT a.*, u.name as artist_name, u.username as artist_username
                 FROM albums a
-                JOIN users u ON a.user_id = u.id
+                LEFT JOIN users u ON a.user_id = u.id
                 WHERE a.id = ?
             `, [path]);
             if (albums.length === 0) return res.status(404).json({ error: 'Album not found' });
