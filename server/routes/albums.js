@@ -4,6 +4,24 @@ const db = require('../config/db');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const { uploadImage } = require('../middleware/upload');
 
+const formatAlbum = (album) => {
+    const getUrl = (path, type) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        return `/uploads/${type}/${path}`;
+    };
+
+    return {
+        albumId: album.id,
+        title: album.title,
+        coverImage: getUrl(album.cover_image, 'albums'),
+        artistName: album.artist_name,
+        userId: album.user_id,
+        songCount: album.song_count || 0,
+        createdAt: album.created_at
+    };
+};
+
 // Get all albums
 router.get('/', async (req, res) => {
     try {
@@ -15,15 +33,7 @@ router.get('/', async (req, res) => {
       ORDER BY a.created_at DESC
     `);
 
-        res.json(albums.map(album => ({
-            albumId: album.id,
-            title: album.title,
-            coverImage: album.cover_image ? `/uploads/albums/${album.cover_image}` : null,
-            artistName: album.artist_name,
-            userId: album.user_id,
-            songCount: album.song_count,
-            createdAt: album.created_at
-        })));
+        res.json(albums.map(formatAlbum));
     } catch (error) {
         console.error('Get albums error:', error);
         res.status(500).json({ error: 'Failed to get albums' });
@@ -43,15 +53,7 @@ router.get('/user/:userId', authMiddleware, async (req, res) => {
       ORDER BY a.created_at DESC
     `, [userId]);
 
-        res.json(albums.map(album => ({
-            albumId: album.id,
-            title: album.title,
-            coverImage: album.cover_image ? `/uploads/albums/${album.cover_image}` : null,
-            artistName: album.artist_name,
-            userId: album.user_id,
-            songCount: album.song_count,
-            createdAt: album.created_at
-        })));
+        res.json(albums.map(formatAlbum));
     } catch (error) {
         console.error('Get user albums error:', error);
         res.status(500).json({ error: 'Failed to get albums' });
@@ -73,15 +75,7 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Album not found' });
         }
 
-        const album = albums[0];
-        res.json({
-            albumId: album.id,
-            title: album.title,
-            coverImage: album.cover_image ? `/uploads/albums/${album.cover_image}` : null,
-            artistName: album.artist_name,
-            userId: album.user_id,
-            createdAt: album.created_at
-        });
+        res.json(formatAlbum(albums[0]));
     } catch (error) {
         console.error('Get album error:', error);
         res.status(500).json({ error: 'Failed to get album' });
@@ -120,7 +114,42 @@ router.post('/', authMiddleware, (req, res, next) => {
     }
 });
 
-// Update album cover
+// Update album metadata
+router.patch('/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        const userId = req.user.id;
+
+        // Check ownership
+        const [albums] = await db.query('SELECT user_id FROM albums WHERE id = ?', [id]);
+        if (albums.length === 0) return res.status(404).json({ error: 'Album not found' });
+        if (albums[0].user_id !== userId && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
+        const updates = [];
+        const values = [];
+
+        if (data.title !== undefined) { updates.push('title = ?'); values.push(data.title); }
+        if (data.coverImage !== undefined) { updates.push('cover_image = ?'); values.push(data.coverImage); }
+
+        if (updates.length > 0) {
+            values.push(id);
+            await db.query(
+                `UPDATE albums SET ${updates.join(', ')} WHERE id = ?`,
+                values
+            );
+        }
+
+        res.json({ success: true, message: 'Album updated' });
+    } catch (error) {
+        console.error('Update album error:', error);
+        res.status(500).json({ error: 'Failed to update album' });
+    }
+});
+
+// Update album cover (File Upload)
 router.patch('/:id/cover', authMiddleware, (req, res, next) => {
     req.uploadType = 'albums';
     next();

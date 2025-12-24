@@ -4,6 +4,31 @@ const db = require('../config/db');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const { uploadAudio, uploadImage } = require('../middleware/upload');
 
+const formatSong = (song) => {
+    const getUrl = (path, type) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        return `/uploads/${type}/${path}`;
+    };
+
+    return {
+        songId: song.id,
+        title: song.title,
+        originalArtist: song.original_artist,
+        coverArtist: song.cover_artist,
+        audioUrl: getUrl(song.audio_file, 'audio'),
+        albumId: song.album_id,
+        albumTitle: song.album_title,
+        albumCover: getUrl(song.album_cover, 'albums'),
+        coverImage: getUrl(song.cover_image, 'covers'),
+        likes: song.likes,
+        lyrics: song.lyrics,
+        userId: song.user_id,
+        isPublic: !!song.is_public,
+        createdAt: song.created_at
+    };
+};
+
 // Get all songs
 router.get('/', async (req, res) => {
     try {
@@ -12,24 +37,11 @@ router.get('/', async (req, res) => {
       FROM songs s
       LEFT JOIN users u ON s.user_id = u.id
       LEFT JOIN albums a ON s.album_id = a.id
+      WHERE s.is_public = 1
       ORDER BY s.created_at DESC
     `);
 
-        res.json(songs.map(song => ({
-            songId: song.id,
-            title: song.title,
-            originalArtist: song.original_artist,
-            coverArtist: song.cover_artist,
-            audioUrl: `/uploads/audio/${song.audio_file}`,
-            albumId: song.album_id,
-            albumTitle: song.album_title,
-            albumCover: song.album_cover ? `/uploads/albums/${song.album_cover}` : null,
-            coverImage: song.cover_image ? `/uploads/covers/${song.cover_image}` : null,
-            likes: song.likes,
-            lyrics: song.lyrics,
-            userId: song.user_id,
-            createdAt: song.created_at
-        })));
+        res.json(songs.map(formatSong));
     } catch (error) {
         console.error('Get songs error:', error);
         res.status(500).json({ error: 'Failed to get songs' });
@@ -49,19 +61,7 @@ router.get('/user/:userId', authMiddleware, async (req, res) => {
       ORDER BY s.created_at DESC
     `, [userId]);
 
-        res.json(songs.map(song => ({
-            songId: song.id,
-            title: song.title,
-            originalArtist: song.original_artist,
-            coverArtist: song.cover_artist,
-            audioUrl: `/uploads/audio/${song.audio_file}`,
-            albumId: song.album_id,
-            albumCover: song.album_cover ? `/uploads/albums/${song.album_cover}` : null,
-            coverImage: song.cover_image ? `/uploads/covers/${song.cover_image}` : null,
-            likes: song.likes,
-            userId: song.user_id,
-            createdAt: song.created_at
-        })));
+        res.json(songs.map(formatSong));
     } catch (error) {
         console.error('Get user songs error:', error);
         res.status(500).json({ error: 'Failed to get songs' });
@@ -81,19 +81,7 @@ router.get('/album/:albumId', async (req, res) => {
       ORDER BY s.created_at ASC
     `, [albumId]);
 
-        res.json(songs.map(song => ({
-            songId: song.id,
-            title: song.title,
-            originalArtist: song.original_artist,
-            coverArtist: song.cover_artist,
-            audioUrl: `/uploads/audio/${song.audio_file}`,
-            albumId: song.album_id,
-            albumCover: song.album_cover ? `/uploads/albums/${song.album_cover}` : null,
-            coverImage: song.cover_image ? `/uploads/covers/${song.cover_image}` : null,
-            likes: song.likes,
-            userId: song.user_id,
-            createdAt: song.created_at
-        })));
+        res.json(songs.map(formatSong));
     } catch (error) {
         console.error('Get album songs error:', error);
         res.status(500).json({ error: 'Failed to get songs' });
@@ -114,7 +102,7 @@ router.post('/', authMiddleware, uploadAudio.single('audio'), async (req, res) =
         }
 
         const [result] = await db.query(
-            'INSERT INTO songs (title, original_artist, audio_file, album_id, user_id, likes, lyrics, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+            'INSERT INTO songs (title, original_artist, audio_file, album_id, user_id, likes, lyrics, created_at, is_public) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 1)',
             [title, originalArtist, req.file.filename, albumId || null, req.user.id, 0, lyrics || null]
         );
 
@@ -132,7 +120,46 @@ router.post('/', authMiddleware, uploadAudio.single('audio'), async (req, res) =
     }
 });
 
-// Update song cover
+// Update song metadata (title, cover, lyrics, visibility)
+router.patch('/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        const userId = req.user.id;
+
+        // Check ownership
+        const [songs] = await db.query('SELECT user_id FROM songs WHERE id = ?', [id]);
+        if (songs.length === 0) return res.status(404).json({ error: 'Song not found' });
+        if (songs[0].user_id !== userId && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
+        const updates = [];
+        const values = [];
+
+        if (data.title !== undefined) { updates.push('title = ?'); values.push(data.title); }
+        if (data.originalArtist !== undefined) { updates.push('original_artist = ?'); values.push(data.originalArtist); }
+        if (data.coverImage !== undefined) { updates.push('cover_image = ?'); values.push(data.coverImage); }
+        if (data.lyrics !== undefined) { updates.push('lyrics = ?'); values.push(data.lyrics); }
+        if (data.isPublic !== undefined) { updates.push('is_public = ?'); values.push(data.isPublic ? 1 : 0); }
+        if (data.albumId !== undefined) { updates.push('album_id = ?'); values.push(data.albumId); }
+
+        if (updates.length > 0) {
+            values.push(id);
+            await db.query(
+                `UPDATE songs SET ${updates.join(', ')} WHERE id = ?`,
+                values
+            );
+        }
+
+        res.json({ success: true, message: 'Song updated', debug: { id, updates } });
+    } catch (error) {
+        console.error('Update song error:', error);
+        res.status(500).json({ error: 'Failed to update song: ' + error.message });
+    }
+});
+
+// Update song cover (File Upload)
 router.patch('/:id/cover', authMiddleware, uploadImage.single('cover'), async (req, res) => {
     try {
         const { id } = req.params;
