@@ -263,6 +263,10 @@ class ApiService {
         return this.request(`/follows/following/${userId}`);
     }
 
+    async checkFollowing(userId) {
+        return this.request(`/follows/check/${userId}`);
+    }
+
     // Banners
     async getBanners() {
         return this.request('/banners');
