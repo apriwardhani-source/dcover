@@ -181,6 +181,16 @@ module.exports = async function handler(req, res) {
         } else {
             await pool.query('INSERT INTO song_likes (song_id, user_id) VALUES (?, ?)', [songId, user.id]);
             await pool.query('UPDATE songs SET likes = likes + 1 WHERE id = ?', [songId]);
+
+            // Get song owner and create notification (don't notify if liking own song)
+            const [song] = await pool.query('SELECT user_id, title FROM songs WHERE id = ?', [songId]);
+            if (song.length > 0 && song[0].user_id !== user.id) {
+                await pool.query(
+                    'INSERT INTO notifications (user_id, from_user_id, type, message, related_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+                    [song[0].user_id, user.id, 'like', `${user.name} menyukai lagu "${song[0].title}"`, songId]
+                );
+            }
+
             return res.json({ liked: true });
         }
     }

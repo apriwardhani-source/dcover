@@ -64,6 +64,15 @@ class ApiService {
         this.setToken(null);
     }
 
+    // Notifications
+    async getNotifications() {
+        return this.request('/notifications');
+    }
+
+    async markNotificationsRead() {
+        return this.request('/notifications/read', { method: 'PATCH' });
+    }
+
     // Songs
     async getSongs() {
         return this.request('/songs');

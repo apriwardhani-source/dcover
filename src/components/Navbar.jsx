@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Upload, User, Shield, LogOut, Menu, X, Sun, Moon, Clock } from 'lucide-react';
+import { Home, Upload, User, Shield, LogOut, Menu, X, Sun, Moon, Bell } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import api from '../services/api';
 
 import { API_URL } from '../config';
 
@@ -12,6 +13,36 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        if (user) {
+            loadNotifications();
+            // Poll every 30 seconds
+            const interval = setInterval(loadNotifications, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [user]);
+
+    const loadNotifications = async () => {
+        try {
+            const data = await api.getNotifications();
+            setNotifications(data.notifications || []);
+            setUnreadCount(data.unreadCount || 0);
+        } catch (error) {
+            console.error('Load notifications error:', error);
+        }
+    };
+
+    const handleOpenNotifications = async () => {
+        setShowNotifications(!showNotifications);
+        if (!showNotifications && unreadCount > 0) {
+            await api.markNotificationsRead();
+            setUnreadCount(0);
+        }
+    };
 
     const handleLogout = () => {
         logout();
@@ -20,7 +51,6 @@ const Navbar = () => {
 
     const navItems = [
         { path: '/', icon: Home, label: 'Home' },
-        { path: '/activity', icon: Clock, label: 'Activity' },
         { path: '/upload', icon: Upload, label: 'Upload' },
         { path: '/profile', icon: User, label: 'Profile' },
     ];
@@ -35,6 +65,14 @@ const Navbar = () => {
         if (!user?.photoURL) return null;
         if (user.photoURL.startsWith('http')) return user.photoURL;
         return `${API_URL}${user.photoURL}`;
+    };
+
+    const formatTimeAgo = (date) => {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (seconds < 60) return 'baru saja';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m lalu`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}j lalu`;
+        return `${Math.floor(seconds / 86400)}h lalu`;
     };
 
     return (
@@ -53,6 +91,18 @@ const Navbar = () => {
                             <item.icon className="w-5 h-5" /><span className="font-medium">{item.label}</span>
                         </Link>
                     ))}
+
+                    {/* Notification Button - Desktop */}
+                    <button onClick={handleOpenNotifications}
+                        className="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 text-[var(--color-text-secondary)] hover:text-white hover:bg-[var(--color-surface-hover)] w-full relative">
+                        <Bell className="w-5 h-5" />
+                        <span className="font-medium">Notifikasi</span>
+                        {unreadCount > 0 && (
+                            <span className="absolute left-7 top-2 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </button>
                 </div>
 
                 {user && (
@@ -81,15 +131,97 @@ const Navbar = () => {
                 )}
             </nav>
 
+            {/* Notification Panel */}
+            {showNotifications && (
+                <div className="fixed inset-0 z-[100]" onClick={() => setShowNotifications(false)}>
+                    <div className="absolute left-64 top-0 bottom-0 w-80 bg-[var(--color-surface)] border-r border-[var(--color-border)] overflow-hidden flex flex-col md:block hidden" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
+                            <h3 className="font-bold flex items-center gap-2"><Bell className="w-5 h-5" /> Notifikasi</h3>
+                            <button onClick={() => setShowNotifications(false)} className="p-1"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto">
+                            {notifications.length === 0 ? (
+                                <p className="text-center py-8 text-[var(--color-text-secondary)]">Belum ada notifikasi</p>
+                            ) : (
+                                notifications.map(n => (
+                                    <Link key={n.id}
+                                        to={n.type === 'follow' ? `/user/${n.fromUser?.id}` : n.type === 'like' ? `/song/${n.relatedId}` : '/'}
+                                        onClick={() => setShowNotifications(false)}
+                                        className={`flex items-start gap-3 p-4 hover:bg-[var(--color-surface-hover)] border-b border-[var(--color-border)] ${!n.isRead ? 'bg-[var(--color-surface-hover)]/50' : ''}`}>
+                                        {n.fromUser?.photoURL ? (
+                                            <img src={n.fromUser.photoURL} alt="" className="w-10 h-10 rounded-full object-cover" />
+                                        ) : (
+                                            <div className="w-10 h-10 rounded-full bg-[var(--color-surface-active)] flex items-center justify-center text-sm font-bold">
+                                                {n.fromUser?.name?.charAt(0) || '?'}
+                                            </div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm">{n.message}</p>
+                                            <p className="text-xs text-[var(--color-text-secondary)] mt-1">{formatTimeAgo(n.createdAt)}</p>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Mobile Notification Panel */}
+                    <div className="md:hidden absolute inset-0 bg-black/80 flex items-end" onClick={() => setShowNotifications(false)}>
+                        <div className="w-full max-h-[70vh] bg-[var(--color-surface)] rounded-t-xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
+                                <h3 className="font-bold flex items-center gap-2"><Bell className="w-5 h-5" /> Notifikasi</h3>
+                                <button onClick={() => setShowNotifications(false)} className="p-1"><X className="w-5 h-5" /></button>
+                            </div>
+                            <div className="max-h-96 overflow-y-auto">
+                                {notifications.length === 0 ? (
+                                    <p className="text-center py-8 text-[var(--color-text-secondary)]">Belum ada notifikasi</p>
+                                ) : (
+                                    notifications.map(n => (
+                                        <Link key={n.id}
+                                            to={n.type === 'follow' ? `/user/${n.fromUser?.id}` : n.type === 'like' ? `/song/${n.relatedId}` : '/'}
+                                            onClick={() => setShowNotifications(false)}
+                                            className="flex items-start gap-3 p-4 hover:bg-[var(--color-surface-hover)] border-b border-[var(--color-border)]">
+                                            {n.fromUser?.photoURL ? (
+                                                <img src={n.fromUser.photoURL} alt="" className="w-10 h-10 rounded-full object-cover" />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-full bg-[var(--color-surface-active)] flex items-center justify-center">
+                                                    {n.fromUser?.name?.charAt(0) || '?'}
+                                                </div>
+                                            )}
+                                            <div className="flex-1">
+                                                <p className="text-sm">{n.message}</p>
+                                                <p className="text-xs text-[var(--color-text-secondary)] mt-1">{formatTimeAgo(n.createdAt)}</p>
+                                            </div>
+                                        </Link>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Mobile Bottom Navigation */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-[var(--color-border)] z-50 safe-bottom">
                 <div className="flex justify-around items-center h-16">
-                    {navItems.slice(0, 4).map((item) => (
+                    {navItems.slice(0, 3).map((item) => (
                         <Link key={item.path} to={item.path}
                             className={`flex flex-col items-center justify-center px-4 py-2 transition-colors ${isActive(item.path) ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
                             <item.icon className="w-5 h-5" /><span className="text-[10px] mt-1">{item.label}</span>
                         </Link>
                     ))}
+
+                    {/* Notification Button - Mobile */}
+                    <button onClick={handleOpenNotifications} className="flex flex-col items-center justify-center px-4 py-2 text-[var(--color-text-secondary)] relative">
+                        <Bell className="w-5 h-5" />
+                        <span className="text-[10px] mt-1">Notif</span>
+                        {unreadCount > 0 && (
+                            <span className="absolute top-1 right-2 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </button>
+
                     {user && (
                         <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center px-4 py-2 text-[var(--color-text-secondary)]">
                             <Menu className="w-5 h-5" /><span className="text-[10px] mt-1">Menu</span>

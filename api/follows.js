@@ -17,6 +17,13 @@ module.exports = async function handler(req, res) {
         const [existing] = await pool.query('SELECT * FROM follows WHERE follower_id = ? AND following_id = ?', [user.id, followingId]);
         if (existing.length > 0) return res.status(400).json({ error: 'Already following' });
         await pool.query('INSERT INTO follows (follower_id, following_id, created_at) VALUES (?, ?, NOW())', [user.id, followingId]);
+
+        // Create notification for the followed user
+        await pool.query(
+            'INSERT INTO notifications (user_id, from_user_id, type, message, created_at) VALUES (?, ?, ?, ?, NOW())',
+            [followingId, user.id, 'follow', `${user.name} mulai mengikuti kamu`]
+        );
+
         return res.json({ success: true, following: true });
     }
 
