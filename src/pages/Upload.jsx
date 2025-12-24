@@ -245,7 +245,7 @@ const Upload = () => {
                                     <p className="font-medium">Klik untuk upload</p>
                                     <p className="text-sm text-[var(--color-text-secondary)]">Audio/Video - MP3, M4A, MP4, MOV (max 500MB)</p>
                                 </div>
-                                <input ref={audioInputRef} type="file" accept="audio/*,video/*" onChange={handleAudioSelect} className="hidden" />
+                                <input ref={audioInputRef} type="file" accept="*/*" onChange={handleAudioSelect} className="hidden" />
                                 {audioFile && (
                                     <div className="mt-4 p-4 bg-[var(--color-surface-hover)] rounded-lg">
                                         <div className="flex items-center gap-3 mb-3">
