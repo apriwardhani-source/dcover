@@ -175,7 +175,7 @@ const MusicPlayer = () => {
             )}
 
             {/* Fixed Bottom Player */}
-            <div className="fixed bottom-16 md:bottom-0 left-0 right-0 md:left-64 h-20 md:h-24 bg-[var(--color-surface)] border-t border-[var(--color-border)] z-40 px-4 flex items-center">
+            <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-0 left-0 right-0 md:left-64 h-20 md:h-24 bg-[var(--color-surface)] border-t border-[var(--color-border)] z-40 px-4 flex items-center">
                 <div className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer md:cursor-default" onClick={() => setExpanded(true)}>
                     <div className="w-14 h-14 rounded-md overflow-hidden flex-shrink-0 shadow-lg">
                         {getCoverImage() ? <img src={getCoverImage()} alt={currentSong.title} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[var(--color-surface-hover)] flex items-center justify-center"><Music2 className="w-6 h-6 text-[var(--color-text-muted)]" /></div>}
