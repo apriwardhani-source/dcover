@@ -30,10 +30,11 @@ const MusicPlayer = () => {
     };
 
     const handleShare = async () => {
+        const songUrl = `${window.location.origin}/song/${currentSong.songId}`;
         const shareData = {
             title: currentSong.title,
             text: `Dengarkan "${currentSong.title}" cover by ${currentSong.coverArtist} di dcover! 🎵`,
-            url: window.location.origin
+            url: songUrl
         };
 
         try {
@@ -41,7 +42,7 @@ const MusicPlayer = () => {
                 await navigator.share(shareData);
             } else {
                 await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
-                toast.success('Link copied!');
+                toast.success('Link lagu disalin!');
             }
         } catch (err) {
             console.error('Share error:', err);

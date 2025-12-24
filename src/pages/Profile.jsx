@@ -5,7 +5,7 @@ import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera, Users, Eye, EyeOff } from 'lucide-react';
+import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera, Users, Eye, EyeOff, Share2 } from 'lucide-react';
 
 import { API_URL } from '../config';
 
@@ -149,6 +149,26 @@ const Profile = () => {
         setMenuOpen(null);
     };
 
+    const handleShareProfile = async () => {
+        const profileUrl = `${window.location.origin}/user/${user.id}`;
+        const shareData = {
+            title: `${user.name} di dcover`,
+            text: `Cek profil ${user.name} di dcover! 🎵`,
+            url: profileUrl
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+                toast.success('Link profil disalin!');
+            }
+        } catch (err) {
+            console.error('Share error:', err);
+        }
+    };
+
     const handleDeleteAlbum = async (album) => {
         const albumSongs = songs.filter(s => s.albumId === album.albumId);
         if (albumSongs.length > 0) { toast.error('Hapus lagu dulu'); return; }
@@ -237,6 +257,9 @@ const Profile = () => {
                                 <h1 className="text-3xl md:text-4xl font-bold">{user?.name}</h1>
                                 <button onClick={() => setIsEditing(true)} className="p-2 text-[var(--color-text-secondary)] hover:text-white transition-colors">
                                     <Edit2 className="w-5 h-5" />
+                                </button>
+                                <button onClick={handleShareProfile} className="p-2 text-[var(--color-text-secondary)] hover:text-white transition-colors">
+                                    <Share2 className="w-5 h-5" />
                                 </button>
                             </div>
                             {user?.bio && <p className="text-[var(--color-text-secondary)] mt-2 max-w-md">{user.bio}</p>}

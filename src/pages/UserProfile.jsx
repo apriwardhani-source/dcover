@@ -5,7 +5,7 @@ import { usePlayer } from '../context/PlayerContext';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
-import { Music2, Disc, Heart, Play, Pause, Users, UserPlus, UserMinus, X } from 'lucide-react';
+import { Music2, Disc, Heart, Play, Pause, Users, UserPlus, UserMinus, X, Share2 } from 'lucide-react';
 import { API_URL } from '../config';
 
 const UserProfile = () => {
@@ -90,6 +90,26 @@ const UserProfile = () => {
         }
     };
 
+    const handleShare = async () => {
+        const profileUrl = `${window.location.origin}/user/${userId}`;
+        const shareData = {
+            title: `${profile?.name} di dcover`,
+            text: `Cek profil ${profile?.name} di dcover! 🎵`,
+            url: profileUrl
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+                toast.success('Link profil disalin!');
+            }
+        } catch (err) {
+            console.error('Share error:', err);
+        }
+    };
+
     const totalLikes = songs.reduce((acc, s) => acc + (s.likes || 0), 0);
 
     const getPhotoUrl = () => {
@@ -112,7 +132,12 @@ const UserProfile = () => {
 
                 <div className="text-center md:text-left flex-1">
                     <span className="text-sm font-medium text-[var(--color-text-secondary)] uppercase">Cover Artist</span>
-                    <h1 className="text-3xl md:text-4xl font-bold mt-1">{profile?.name}</h1>
+                    <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
+                        <h1 className="text-3xl md:text-4xl font-bold">{profile?.name}</h1>
+                        <button onClick={handleShare} className="p-2 text-[var(--color-text-secondary)] hover:text-white transition-colors">
+                            <Share2 className="w-5 h-5" />
+                        </button>
+                    </div>
                     {profile?.bio && <p className="text-[var(--color-text-secondary)] mt-2 max-w-md">{profile.bio}</p>}
 
                     <div className="flex items-center justify-center md:justify-start gap-4 mt-3 text-[var(--color-text-secondary)]">
@@ -134,8 +159,8 @@ const UserProfile = () => {
                         <button
                             onClick={handleFollow}
                             className={`mt-4 flex items-center gap-2 px-6 py-2 rounded-full font-medium transition-colors ${isFollowing
-                                    ? 'bg-[var(--color-surface-hover)] text-white hover:bg-red-500/20 hover:text-red-400'
-                                    : 'bg-[var(--color-primary)] text-black hover:opacity-90'
+                                ? 'bg-[var(--color-surface-hover)] text-white hover:bg-red-500/20 hover:text-red-400'
+                                : 'bg-[var(--color-primary)] text-black hover:opacity-90'
                                 }`}
                         >
                             {isFollowing ? <><UserMinus className="w-5 h-5" /> Berhenti Ikuti</> : <><UserPlus className="w-5 h-5" /> Ikuti</>}

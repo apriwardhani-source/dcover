@@ -4,7 +4,8 @@ import api from '../services/api';
 import { usePlayer } from '../context/PlayerContext';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { ArrowLeft, Play, Pause, Music2, Clock, Heart } from 'lucide-react';
+import { ArrowLeft, Play, Pause, Music2, Clock, Heart, Share2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import { API_URL } from '../config';
 
@@ -48,6 +49,26 @@ const AlbumDetail = () => {
         playSong(song, songs, index);
     };
 
+    const handleShare = async () => {
+        const albumUrl = `${window.location.origin}/album/${albumId}`;
+        const shareData = {
+            title: album?.title,
+            text: `Dengarkan album "${album?.title}" di dcover! 🎵`,
+            url: albumUrl
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+                toast.success('Link album disalin!');
+            }
+        } catch (err) {
+            console.error('Share error:', err);
+        }
+    };
+
     const handleLike = async (song, e) => {
         e.stopPropagation();
         if (!user) return;
@@ -85,6 +106,7 @@ const AlbumDetail = () => {
 
             <div className="flex items-center gap-4 mb-8">
                 <button onClick={handlePlayAll} disabled={songs.length === 0} className="w-14 h-14 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50"><Play className="w-6 h-6 ml-1" fill="currentColor" /></button>
+                <button onClick={handleShare} className="w-10 h-10 rounded-full bg-[var(--color-surface-hover)] flex items-center justify-center hover:bg-[var(--color-surface-active)] transition-colors"><Share2 className="w-5 h-5" /></button>
             </div>
 
             {songs.length > 0 ? (
