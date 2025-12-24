@@ -96,8 +96,33 @@ module.exports = async function handler(req, res) {
             return res.json(songs.map(formatSong));
         }
 
+        // POST /api/songs/:id/like (Like/Unlike)
+        if (req.method === 'POST' && path.endsWith('/like')) {
+            const user = await getAuthUser(req);
+            if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+            const id = path.split('/')[0];
+            // Check if already liked
+            const [existing] = await pool.query(
+                'SELECT * FROM song_likes WHERE song_id = ? AND user_id = ?',
+                [id, user.id]
+            );
+
+            if (existing.length > 0) {
+                // Unlike
+                await pool.query('DELETE FROM song_likes WHERE song_id = ? AND user_id = ?', [id, user.id]);
+                await pool.query('UPDATE songs SET likes = GREATEST(0, likes - 1) WHERE id = ?', [id]);
+                return res.json({ liked: false });
+            } else {
+                // Like
+                await pool.query('INSERT INTO song_likes (song_id, user_id) VALUES (?, ?)', [id, user.id]);
+                await pool.query('UPDATE songs SET likes = likes + 1 WHERE id = ?', [id]);
+                return res.json({ liked: true });
+            }
+        }
+
         // POST /api/songs - Create song (requires auth)
-        if (req.method === 'POST') {
+        if (req.method === 'POST' && path === '') {
             const user = await getAuthUser(req);
             if (!user) return res.status(401).json({ error: 'Unauthorized' });
             const { title, originalArtist, audioFile, albumId, lyrics } = req.body;
