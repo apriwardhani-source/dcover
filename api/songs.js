@@ -227,18 +227,25 @@ module.exports = async function handler(req, res) {
                 return res.status(403).json({ error: 'Not authorized' });
             }
 
-            const { title, originalArtist, coverImage, lyrics, isPublic } = req.body;
+            const { title, originalArtist, coverImage, lyrics, isPublic, albumId } = req.body;
 
-            await pool.query(
-                `UPDATE songs SET 
-                    title = COALESCE(?, title),
-                    original_artist = COALESCE(?, original_artist),
-                    cover_image = COALESCE(?, cover_image),
-                    lyrics = COALESCE(?, lyrics),
-                    is_public = COALESCE(?, is_public)
-                WHERE id = ?`,
-                [title, originalArtist, coverImage, lyrics, isPublic === undefined ? null : (isPublic ? 1 : 0), id]
-            );
+            const updates = [];
+            const values = [];
+
+            if (title !== undefined) { updates.push('title = ?'); values.push(title); }
+            if (originalArtist !== undefined) { updates.push('original_artist = ?'); values.push(originalArtist); }
+            if (coverImage !== undefined) { updates.push('cover_image = ?'); values.push(coverImage); }
+            if (lyrics !== undefined) { updates.push('lyrics = ?'); values.push(lyrics); }
+            if (isPublic !== undefined) { updates.push('is_public = ?'); values.push(isPublic ? 1 : 0); }
+            if (albumId !== undefined) { updates.push('album_id = ?'); values.push(albumId); }
+
+            if (updates.length > 0) {
+                values.push(id);
+                await pool.query(
+                    `UPDATE songs SET ${updates.join(', ')} WHERE id = ?`,
+                    values
+                );
+            }
 
             return res.json({ success: true, coverImage });
         } catch (error) {

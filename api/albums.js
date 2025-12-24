@@ -105,12 +105,20 @@ module.exports = async function handler(req, res) {
 
             const { title, coverImage } = req.body;
 
+            const updates = [];
+            const values = [];
+
+            if (title !== undefined) { updates.push('title = ?'); values.push(title); }
+            if (coverImage !== undefined) { updates.push('cover_image = ?'); values.push(coverImage); }
+
+            if (updates.length === 0) {
+                return res.json({ success: true, message: 'No changes made' });
+            }
+
+            values.push(id);
             await pool.query(
-                `UPDATE albums SET 
-                    title = COALESCE(?, title),
-                    cover_image = COALESCE(?, cover_image)
-                WHERE id = ?`,
-                [title, coverImage, id]
+                `UPDATE albums SET ${updates.join(', ')} WHERE id = ?`,
+                values
             );
 
             return res.json({ success: true, coverImage });

@@ -207,9 +207,11 @@ const Profile = () => {
 
             // 2. Update database via API
             if (type === 'songs') {
-                await api.updateSong(id, { coverImage: coverUrl });
+                const res = await api.updateSong(id, { coverImage: coverUrl });
+                console.log('Update song res:', res);
             } else {
-                await api.updateAlbum(id, { coverImage: coverUrl });
+                const res = await api.updateAlbum(id, { coverImage: coverUrl });
+                console.log('Update album res:', res);
             }
 
             toast.success('Cover diupdate!', { id: toastId });
