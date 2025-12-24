@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Music2, Heart, User, Clock, MessageCircle, UserPlus } from 'lucide-react';
+import { Music2, Heart, Play, User, Calendar, MessageSquare, TrendingUp } from 'lucide-react';
+import { getSongUrl } from '../utils/slug';
 
 import { API_URL } from '../config';
 
@@ -116,7 +117,7 @@ const Activity = () => {
                         <div key={activity.id} className="bg-[var(--color-surface)] rounded-lg p-4 flex gap-4">
                             {/* Song Cover */}
                             {activity.song && (
-                                <Link to={`/song/${activity.song.songId}`} className="flex-shrink-0">
+                                <Link to={getSongUrl(activity.song)} className="flex-shrink-0">
                                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--color-surface-hover)]">
                                         {activity.song.coverImage || activity.song.albumCover ? (
                                             <img

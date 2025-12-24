@@ -9,6 +9,7 @@ import { ArrowLeft, Play, Pause, Music2, Clock, Heart, Share2 } from 'lucide-rea
 import toast from 'react-hot-toast';
 
 import { API_URL } from '../config';
+import { getAlbumUrl } from '../utils/slug';
 
 const AlbumDetail = () => {
     const { albumId } = useParams();
@@ -25,9 +26,10 @@ const AlbumDetail = () => {
 
     const loadData = async () => {
         try {
+            const id = parseInt(albumId.split('-')[0]);
             const [albumData, songsData] = await Promise.all([
-                api.getAlbum(albumId),
-                api.getAlbumSongs(albumId)
+                api.getAlbum(id),
+                api.getAlbumSongs(id)
             ]);
             setAlbum(albumData);
             setSongs(songsData);
@@ -51,7 +53,7 @@ const AlbumDetail = () => {
     };
 
     const handleShare = async () => {
-        const albumUrl = `${window.location.origin}/album/${albumId}`;
+        const albumUrl = `${window.location.origin}${getAlbumUrl(album)}`;
         const shareData = {
             title: album?.title,
             text: `Dengarkan album "${album?.title}" di dcover! 🎵`,

@@ -7,6 +7,8 @@ import api from '../services/api';
 import { API_URL } from '../config';
 import { getImageUrl } from '../utils/url';
 
+import { getSongUrl } from '../utils/slug';
+
 const SongCard = ({ song, songs, index, onLikeChange }) => {
     const { playSong, currentSong, isPlaying } = usePlayer();
     const { user } = useAuth();
@@ -37,7 +39,7 @@ const SongCard = ({ song, songs, index, onLikeChange }) => {
     };
 
     return (
-        <Link to={`/song/${song.songId}`} className="card hover-lift group cursor-pointer block">
+        <Link to={getSongUrl(song)} className="card hover-lift group cursor-pointer block">
             <div className="relative aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
                 {getCoverImage() ? (
                     <img src={getCoverImage()} alt={song.title} className="w-full h-full object-cover" />

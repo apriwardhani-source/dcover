@@ -8,6 +8,7 @@ import { UserProfileSkeleton } from '../components/Skeletons';
 import toast from 'react-hot-toast';
 import { Music2, Disc, Heart, Play, Pause, Users, UserPlus, UserMinus, X, Share2 } from 'lucide-react';
 import { API_URL } from '../config';
+import { getUserUrl, getSongUrl, getAlbumUrl } from '../utils/slug';
 
 const UserProfile = () => {
     const { userId, username } = useParams();
@@ -101,7 +102,7 @@ const UserProfile = () => {
     };
 
     const handleShare = async () => {
-        const profileUrl = `${window.location.origin}/@${profile?.username}`;
+        const profileUrl = `${window.location.origin}${getUserUrl(profile)}`;
         const shareData = {
             title: `${profile?.name} di dcover`,
             text: `Cek profil ${profile?.name} di dcover! 🎵`,
@@ -239,7 +240,7 @@ const UserProfile = () => {
                         {albums.map(album => {
                             const coverUrl = getImageUrl(album.coverImage);
                             return (
-                                <Link key={album.albumId} to={`/album/${album.albumId}`} className="group">
+                                <Link key={album.albumId} to={getAlbumUrl(album)} className="group">
                                     <div className="aspect-square rounded-xl overflow-hidden bg-[var(--color-surface-hover)] mb-2">
                                         {album.coverImage ? (
                                             <img src={coverUrl} alt={album.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
@@ -283,7 +284,7 @@ const UserProfile = () => {
                                 </p>
                             ) : (
                                 modalUsers.map(u => (
-                                    <Link key={u.id} to={`/user/${u.id}`} onClick={() => setShowModal(null)}
+                                    <Link key={u.id} to={getUserUrl(u)} onClick={() => setShowModal(null)}
                                         className="flex items-center gap-3 p-3 hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors"
                                     >
                                         {u.photoURL ? (

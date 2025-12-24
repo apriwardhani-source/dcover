@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import { Play, Pause, Heart, Share2, Music2, ArrowLeft, Calendar, User } from 'lucide-react';
 
 import { API_URL } from '../config';
+import { getAlbumUrl } from '../utils/slug';
 
 const SongDetail = () => {
     const { id } = useParams();
@@ -28,7 +29,8 @@ const SongDetail = () => {
     const loadSong = async () => {
         try {
             const songs = await api.getSongs();
-            const foundSong = songs.find(s => s.songId === parseInt(id));
+            const songId = parseInt(id.split('-')[0]);
+            const foundSong = songs.find(s => s.songId === songId);
 
             if (foundSong) {
                 setSong(foundSong);
@@ -178,7 +180,7 @@ const SongDetail = () => {
                             {new Date(song.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </span>
                         {song.albumTitle && (
-                            <Link to={`/album/${song.albumId}`} className="text-[var(--color-primary)]">
+                            <Link to={getAlbumUrl({ albumId: song.albumId, title: song.albumTitle })} className="text-[var(--color-primary)]">
                                 📀 {song.albumTitle}
                             </Link>
                         )}

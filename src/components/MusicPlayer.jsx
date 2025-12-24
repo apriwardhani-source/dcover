@@ -29,7 +29,7 @@ const MusicPlayer = () => {
     };
 
     const handleShare = async () => {
-        const songUrl = `${window.location.origin}/song/${currentSong.songId}`;
+        const songUrl = `${window.location.origin}${getSongUrl(currentSong)}`;
         const shareData = {
             title: currentSong.title,
             text: `Dengarkan "${currentSong.title}" cover by ${currentSong.coverArtist} di dcover! 🎵`,

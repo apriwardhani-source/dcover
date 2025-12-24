@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { NotificationsSkeleton } from '../components/Skeletons';
 import { ArrowLeft, Bell, Heart, UserPlus, Music2 } from 'lucide-react';
+import { getUserUrl, getSongUrl } from '../utils/slug';
 import { API_URL } from '../config';
 
 const Notifications = () => {
@@ -51,8 +52,8 @@ const Notifications = () => {
     };
 
     const getNotificationLink = (n) => {
-        if (n.type === 'follow' && n.fromUser?.id) return `/user/${n.fromUser.id}`;
-        if (n.type === 'like' && n.relatedId) return `/song/${n.relatedId}`;
+        if (n.type === 'follow' && n.fromUser?.id) return getUserUrl({ id: n.fromUser.id, username: n.fromUser.username });
+        if (n.type === 'like' && n.relatedId) return getSongUrl({ id: n.relatedId, title: 'song' }); // We don't have title here, but id-song is fine
         return '/';
     };
 

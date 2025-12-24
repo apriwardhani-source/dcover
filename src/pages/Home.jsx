@@ -8,6 +8,7 @@ import SearchFilters from '../components/SearchFilters';
 import SuggestedUsers from '../components/SuggestedUsers';
 import { Music2, TrendingUp, Clock, Heart, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getAlbumUrl, getSongUrl } from '../utils/slug';
 
 import { API_URL } from '../config';
 
@@ -228,7 +229,7 @@ const Home = () => {
                             <h2 className="text-xl font-bold mb-4">💿 Album Terbaru</h2>
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                                 {albums.slice(0, 5).map((album) => (
-                                    <Link key={album.albumId} to={`/album/${album.albumId}`} className="card hover-lift">
+                                    <Link key={album.albumId} to={getAlbumUrl(album)} className="card hover-lift">
                                         <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
                                             {album.coverImage ? (
                                                 <img src={getImageUrl(album.coverImage)} alt={album.title} className="w-full h-full object-cover" />
