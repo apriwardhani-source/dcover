@@ -63,9 +63,9 @@ const Upload = () => {
         }
 
         // Allow larger files for video (will be converted)
-        const maxSize = isVideo ? 100 * 1024 * 1024 : 20 * 1024 * 1024;
+        const maxSize = isVideo ? 500 * 1024 * 1024 : 50 * 1024 * 1024;
         if (file.size > maxSize) {
-            toast.error(`Ukuran file maksimal ${isVideo ? '100' : '20'}MB`);
+            toast.error(`Ukuran file maksimal ${isVideo ? '500' : '50'}MB`);
             return;
         }
 
@@ -243,7 +243,7 @@ const Upload = () => {
                                 <div onClick={() => audioInputRef.current?.click()} className="border-2 border-dashed border-[var(--color-border)] rounded-xl p-8 text-center cursor-pointer hover:border-[var(--color-primary)]">
                                     <FileAudio className="w-12 h-12 mx-auto mb-4 text-[var(--color-text-muted)]" />
                                     <p className="font-medium">Klik untuk upload</p>
-                                    <p className="text-sm text-[var(--color-text-secondary)]">Audio/Video - MP3, M4A, MP4, MOV (max 100MB)</p>
+                                    <p className="text-sm text-[var(--color-text-secondary)]">Audio/Video - MP3, M4A, MP4, MOV (max 500MB)</p>
                                 </div>
                                 <input ref={audioInputRef} type="file" accept="audio/*,video/*" onChange={handleAudioSelect} className="hidden" />
                                 {audioFile && (
