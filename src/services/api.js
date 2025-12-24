@@ -66,11 +66,11 @@ class ApiService {
 
     // Notifications
     async getNotifications() {
-        return this.request('/notifications');
+        return this.request('/users/notifications');
     }
 
     async markNotificationsRead() {
-        return this.request('/notifications/read', { method: 'PATCH' });
+        return this.request('/users/notifications/read', { method: 'PATCH' });
     }
 
     // Songs

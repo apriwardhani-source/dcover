@@ -75,15 +75,72 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path.match(/^\d+$/)) {
         const user = await getAuthUser(req);
         if (!user) return res.status(401).json({ error: 'Unauthorized' });
-        const [users] = await pool.query('SELECT id, name, email, photo_url, role, created_at FROM users WHERE id = ?', [path]);
+        const [users] = await pool.query('SELECT id, name, email, photo_url, bio, role, created_at FROM users WHERE id = ?', [path]);
         if (users.length === 0) return res.status(404).json({ error: 'User not found' });
         const u = users[0];
         const [stats] = await pool.query('SELECT COUNT(*) as songCount, COALESCE(SUM(likes), 0) as totalLikes FROM songs WHERE user_id = ?', [path]);
         const [albumStats] = await pool.query('SELECT COUNT(*) as albumCount FROM albums WHERE user_id = ?', [path]);
         return res.json({
-            id: u.id, name: u.name, email: u.email, photoURL: u.photo_url, role: u.role, createdAt: u.created_at,
+            id: u.id, name: u.name, email: u.email, photoURL: u.photo_url, bio: u.bio, role: u.role, createdAt: u.created_at,
             songCount: stats[0].songCount, albumCount: albumStats[0].albumCount, totalLikes: stats[0].totalLikes
         });
+    }
+
+    // ============ NOTIFICATIONS ============
+
+    // GET /users/notifications - Get user's notifications
+    if (req.method === 'GET' && path === 'notifications') {
+        const user = await getAuthUser(req);
+        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+        try {
+            const [notifications] = await pool.query(`
+                SELECT n.*, u.name as from_name, u.photo_url as from_photo
+                FROM notifications n
+                LEFT JOIN users u ON n.from_user_id = u.id
+                WHERE n.user_id = ?
+                ORDER BY n.created_at DESC
+                LIMIT 50
+            `, [user.id]);
+
+            const [unreadCount] = await pool.query(
+                'SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0',
+                [user.id]
+            );
+
+            return res.json({
+                notifications: notifications.map(n => ({
+                    id: n.id,
+                    type: n.type,
+                    message: n.message,
+                    relatedId: n.related_id,
+                    fromUser: n.from_user_id ? {
+                        id: n.from_user_id,
+                        name: n.from_name,
+                        photoURL: n.from_photo
+                    } : null,
+                    isRead: n.is_read === 1,
+                    createdAt: n.created_at
+                })),
+                unreadCount: unreadCount[0].count
+            });
+        } catch (error) {
+            console.error('Get notifications error:', error);
+            return res.status(500).json({ error: 'Failed to get notifications' });
+        }
+    }
+
+    // PATCH /users/notifications/read - Mark all as read
+    if (req.method === 'PATCH' && path === 'notifications/read') {
+        const user = await getAuthUser(req);
+        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+        try {
+            await pool.query('UPDATE notifications SET is_read = 1 WHERE user_id = ?', [user.id]);
+            return res.json({ success: true });
+        } catch (error) {
+            return res.status(500).json({ error: 'Failed to mark as read' });
+        }
     }
 
     return res.status(404).json({ error: 'Not found' });
