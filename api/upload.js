@@ -122,11 +122,15 @@ module.exports = async function handler(req, res) {
     // PATCH /upload/profile - Update profile
     if (req.method === 'PATCH' && path === 'profile') {
         try {
-            const { name, bio, photoData } = req.body;
+            const { name, bio, photoData, photoURL } = req.body;
 
-            // Upload photo if provided
+            // Use photoURL directly if provided, otherwise upload photoData
             let photoUrl = user.photo_url;
-            if (photoData) {
+            if (photoURL) {
+                // Direct URL from Cloudinary frontend upload
+                photoUrl = photoURL;
+            } else if (photoData) {
+                // Base64 data from backend upload
                 const photoResult = await uploadToCloudinary(photoData, 'dcover/profiles', 'image');
                 photoUrl = photoResult.secure_url;
             }

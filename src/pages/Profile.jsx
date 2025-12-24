@@ -93,19 +93,36 @@ const Profile = () => {
 
     const handlePhotoUpload = async (e) => {
         const file = e.target.files[0];
-        if (!file || !file.type.startsWith('image/')) return;
+        if (!file || !file.type.startsWith('image/')) {
+            toast.error('Pilih file gambar yang valid');
+            return;
+        }
+
+        const toastId = toast.loading('Mengupload foto...');
 
         try {
-            // Convert to base64
-            const reader = new FileReader();
-            reader.onload = async () => {
-                await api.updateProfile({ photoData: reader.result });
-                toast.success('Foto profil diupdate!');
-                window.location.reload();
-            };
-            reader.readAsDataURL(file);
+            // Upload directly to Cloudinary
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'ml_default');
+            formData.append('cloud_name', 'dzz91k3ky');
+
+            const cloudinaryRes = await fetch(
+                'https://api.cloudinary.com/v1_1/dzz91k3ky/image/upload',
+                { method: 'POST', body: formData }
+            );
+
+            if (!cloudinaryRes.ok) throw new Error('Upload to Cloudinary failed');
+            const cloudinaryData = await cloudinaryRes.json();
+
+            // Update profile with Cloudinary URL
+            await api.updateProfile({ photoURL: cloudinaryData.secure_url });
+
+            toast.success('Foto profil diupdate!', { id: toastId });
+            window.location.reload();
         } catch (error) {
-            toast.error('Gagal upload foto');
+            console.error('Photo upload error:', error);
+            toast.error('Gagal upload foto: ' + error.message, { id: toastId });
         }
     };
 

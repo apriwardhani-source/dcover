@@ -140,17 +140,24 @@ module.exports = async function handler(req, res) {
 
     // PATCH /songs/:id/visibility - Toggle public/private
     if (req.method === 'PATCH' && path.match(/^\d+\/visibility$/)) {
-        const user = await getAuthUser(req);
-        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+        try {
+            const user = await getAuthUser(req);
+            if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-        const songId = path.split('/')[0];
-        const [songs] = await pool.query('SELECT user_id, is_public FROM songs WHERE id = ?', [songId]);
-        if (songs.length === 0) return res.status(404).json({ error: 'Song not found' });
-        if (songs[0].user_id !== user.id) return res.status(403).json({ error: 'Not authorized' });
+            const songId = path.split('/')[0];
+            const [songs] = await pool.query('SELECT user_id, is_public FROM songs WHERE id = ?', [songId]);
+            if (songs.length === 0) return res.status(404).json({ error: 'Song not found' });
+            if (songs[0].user_id !== user.id) return res.status(403).json({ error: 'Not authorized' });
 
-        const newValue = songs[0].is_public === 0 ? 1 : 0;
-        await pool.query('UPDATE songs SET is_public = ? WHERE id = ?', [newValue, songId]);
-        return res.json({ isPublic: newValue === 1 });
+            // Handle null/undefined is_public (default to public)
+            const currentValue = songs[0].is_public === 0 ? 0 : 1;
+            const newValue = currentValue === 0 ? 1 : 0;
+            await pool.query('UPDATE songs SET is_public = ? WHERE id = ?', [newValue, songId]);
+            return res.json({ isPublic: newValue === 1 });
+        } catch (error) {
+            console.error('Toggle visibility error:', error);
+            return res.status(500).json({ error: 'Failed to toggle visibility: ' + error.message });
+        }
     }
 
     // POST /songs/:id/play - Increment play count
