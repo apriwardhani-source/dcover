@@ -187,12 +187,26 @@ const Profile = () => {
         const file = e.target.files[0];
         if (!file || !file.type.startsWith('image/')) return;
         try {
-            const formData = new FormData();
-            formData.append('cover', file);
-            if (type === 'songs') await api.updateSongCover(id, formData);
-            else await api.updateAlbumCover(id, formData);
-            toast.success('Cover diupdate');
-            loadData();
+            if (type === 'songs') {
+                // Convert to base64 for song cover
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    try {
+                        await api.updateSongCover(id, reader.result);
+                        toast.success('Cover diupdate');
+                        loadData();
+                    } catch (error) {
+                        toast.error('Gagal update');
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const formData = new FormData();
+                formData.append('cover', file);
+                await api.updateAlbumCover(id, formData);
+                toast.success('Cover diupdate');
+                loadData();
+            }
         } catch (error) {
             toast.error('Gagal update');
         }

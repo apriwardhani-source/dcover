@@ -127,10 +127,10 @@ class ApiService {
         });
     }
 
-    async updateSongCover(songId, formData) {
-        return this.request(`/songs/${songId}/cover`, {
+    async updateSongCover(songId, coverData) {
+        return this.request(`/upload/song-cover/${songId}`, {
             method: 'PATCH',
-            body: formData,
+            body: JSON.stringify({ coverData }),
         });
     }
 
