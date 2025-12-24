@@ -126,13 +126,42 @@ export const PlayerProvider = ({ children }) => {
 
             // Extract dominant color from cover art
             const coverUrl = song.coverImage || song.albumCover;
+            let fullCoverUrl = null;
             if (coverUrl) {
-                const fullCoverUrl = coverUrl.startsWith('http') ? coverUrl : `${API_URL}${coverUrl}`;
+                fullCoverUrl = coverUrl.startsWith('http') ? coverUrl : `${API_URL}${coverUrl}`;
                 extractDominantColor(fullCoverUrl).then(color => {
                     applyDynamicGradient(color);
                 });
             } else {
                 resetGradient();
+            }
+
+            // Set Media Session metadata for lock screen
+            if ('mediaSession' in navigator) {
+                const artwork = fullCoverUrl ? [
+                    { src: fullCoverUrl, sizes: '96x96', type: 'image/jpeg' },
+                    { src: fullCoverUrl, sizes: '128x128', type: 'image/jpeg' },
+                    { src: fullCoverUrl, sizes: '192x192', type: 'image/jpeg' },
+                    { src: fullCoverUrl, sizes: '256x256', type: 'image/jpeg' },
+                    { src: fullCoverUrl, sizes: '384x384', type: 'image/jpeg' },
+                    { src: fullCoverUrl, sizes: '512x512', type: 'image/jpeg' },
+                ] : [];
+
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song.title,
+                    artist: song.coverArtist || song.originalArtist,
+                    album: song.albumTitle || 'dcover',
+                    artwork: artwork
+                });
+
+                // Media session action handlers
+                navigator.mediaSession.setActionHandler('play', () => togglePlay());
+                navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+                navigator.mediaSession.setActionHandler('previoustrack', () => playPrevious());
+                navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
+                navigator.mediaSession.setActionHandler('seekto', (details) => {
+                    if (details.seekTime) seekTo(details.seekTime);
+                });
             }
 
             audio.src = audioUrl;
