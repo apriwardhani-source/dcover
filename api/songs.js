@@ -214,5 +214,38 @@ module.exports = async function handler(req, res) {
         return res.json({ success: true });
     }
 
+    // PATCH /songs/:id - Update song metadata
+    if (req.method === 'PATCH' && path.match(/^\d+$/)) {
+        try {
+            const user = await getAuthUser(req);
+            if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+            const id = path;
+            const [songs] = await pool.query('SELECT user_id FROM songs WHERE id = ?', [id]);
+            if (songs.length === 0) return res.status(404).json({ error: 'Song not found' });
+            if (songs[0].user_id !== user.id && user.role !== 'admin') {
+                return res.status(403).json({ error: 'Not authorized' });
+            }
+
+            const { title, originalArtist, coverImage, lyrics, isPublic } = req.body;
+
+            await pool.query(
+                `UPDATE songs SET 
+                    title = COALESCE(?, title),
+                    original_artist = COALESCE(?, original_artist),
+                    cover_image = COALESCE(?, cover_image),
+                    lyrics = COALESCE(?, lyrics),
+                    is_public = COALESCE(?, is_public)
+                WHERE id = ?`,
+                [title, originalArtist, coverImage, lyrics, isPublic === undefined ? null : (isPublic ? 1 : 0), id]
+            );
+
+            return res.json({ success: true, coverImage });
+        } catch (error) {
+            console.error('Update song error:', error);
+            return res.status(500).json({ error: 'Failed to update song: ' + error.message });
+        }
+    }
+
     return res.status(404).json({ error: 'Not found' });
 };

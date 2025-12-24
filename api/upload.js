@@ -186,38 +186,5 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    // PATCH /upload/song-cover/:id - Update song cover
-    if (req.method === 'PATCH' && path.startsWith('song-cover/')) {
-        try {
-            const songId = path.split('/')[1];
-            const { coverData } = req.body;
-
-            if (!coverData) {
-                return res.status(400).json({ error: 'Cover image data is required' });
-            }
-
-            // Check if user owns the song
-            const [songs] = await pool.query('SELECT user_id FROM songs WHERE id = ?', [songId]);
-            if (songs.length === 0) {
-                return res.status(404).json({ error: 'Song not found' });
-            }
-            if (songs[0].user_id !== user.id && user.role !== 'admin') {
-                return res.status(403).json({ error: 'Not authorized' });
-            }
-
-            // Upload new cover to Cloudinary
-            const coverResult = await uploadToCloudinary(coverData, 'dcover/covers', 'image');
-            const coverUrl = coverResult.secure_url;
-
-            // Update database
-            await pool.query('UPDATE songs SET cover_image = ? WHERE id = ?', [coverUrl, songId]);
-
-            return res.json({ coverImage: coverUrl });
-        } catch (error) {
-            console.error('Update song cover error:', error);
-            return res.status(500).json({ error: 'Failed to update cover: ' + error.message });
-        }
-    }
-
     return res.status(404).json({ error: 'Not found' });
 };

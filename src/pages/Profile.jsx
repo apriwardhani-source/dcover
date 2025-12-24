@@ -186,29 +186,36 @@ const Profile = () => {
     const handleCoverUpload = async (e, type, id) => {
         const file = e.target.files[0];
         if (!file || !file.type.startsWith('image/')) return;
+
+        const toastId = toast.loading('Mengupload cover...');
         try {
+            // 1. Upload directly to Cloudinary (same as profile photo)
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'ml_default');
+            formData.append('cloud_name', 'dzz91k3ky');
+
+            const cloudinaryRes = await fetch(
+                'https://api.cloudinary.com/v1_1/dzz91k3ky/image/upload',
+                { method: 'POST', body: formData }
+            );
+
+            if (!cloudinaryRes.ok) throw new Error('Upload to Cloudinary failed');
+            const cloudinaryData = await cloudinaryRes.json();
+            const coverUrl = cloudinaryData.secure_url;
+
+            // 2. Update database via API
             if (type === 'songs') {
-                // Convert to base64 for song cover
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    try {
-                        await api.updateSongCover(id, reader.result);
-                        toast.success('Cover diupdate');
-                        loadData();
-                    } catch (error) {
-                        toast.error('Gagal update');
-                    }
-                };
-                reader.readAsDataURL(file);
+                await api.updateSong(id, { coverImage: coverUrl });
             } else {
-                const formData = new FormData();
-                formData.append('cover', file);
-                await api.updateAlbumCover(id, formData);
-                toast.success('Cover diupdate');
-                loadData();
+                await api.updateAlbum(id, { coverImage: coverUrl });
             }
+
+            toast.success('Cover diupdate!', { id: toastId });
+            loadData();
         } catch (error) {
-            toast.error('Gagal update');
+            console.error('Cover upload error:', error);
+            toast.error('Gagal update cover: ' + error.message, { id: toastId });
         }
         setEditingCover(null);
     };

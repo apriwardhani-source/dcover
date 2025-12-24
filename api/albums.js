@@ -90,5 +90,35 @@ module.exports = async function handler(req, res) {
         return res.json({ success: true });
     }
 
+    // PATCH /albums/:id - Update album metadata
+    if (req.method === 'PATCH' && path.match(/^\d+$/)) {
+        try {
+            const user = await getAuthUser(req);
+            if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+            const id = path;
+            const [albums] = await pool.query('SELECT user_id FROM albums WHERE id = ?', [id]);
+            if (albums.length === 0) return res.status(404).json({ error: 'Album not found' });
+            if (albums[0].user_id !== user.id && user.role !== 'admin') {
+                return res.status(403).json({ error: 'Not authorized' });
+            }
+
+            const { title, coverImage } = req.body;
+
+            await pool.query(
+                `UPDATE albums SET 
+                    title = COALESCE(?, title),
+                    cover_image = COALESCE(?, cover_image)
+                WHERE id = ?`,
+                [title, coverImage, id]
+            );
+
+            return res.json({ success: true, coverImage });
+        } catch (error) {
+            console.error('Update album error:', error);
+            return res.status(500).json({ error: 'Failed to update album: ' + error.message });
+        }
+    }
+
     return res.status(404).json({ error: 'Not found' });
 };

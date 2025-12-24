@@ -127,15 +127,19 @@ class ApiService {
         });
     }
 
-    async updateSongCover(songId, coverData) {
-        return this.request(`/upload/song-cover/${songId}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ coverData }),
-        });
+    async updateSongCover(songId, coverImage) {
+        return this.updateSong(songId, { coverImage });
     }
 
     async updateSong(songId, data) {
         return this.request(`/songs/${songId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateAlbum(albumId, data) {
+        return this.request(`/albums/${albumId}`, {
             method: 'PATCH',
             body: JSON.stringify(data),
         });
@@ -200,11 +204,8 @@ class ApiService {
         });
     }
 
-    async updateAlbumCover(albumId, formData) {
-        return this.request(`/albums/${albumId}/cover`, {
-            method: 'PATCH',
-            body: formData,
-        });
+    async updateAlbumCover(albumId, coverImage) {
+        return this.updateAlbum(albumId, { coverImage });
     }
 
     async deleteAlbum(albumId) {
