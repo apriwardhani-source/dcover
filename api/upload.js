@@ -14,21 +14,30 @@ module.exports = async function handler(req, res) {
 
         // PATCH /api/upload/profile
         if (req.method === 'PATCH' && path === 'profile') {
-            const { name, bio, photoURL } = req.body;
-            if (!name) return res.status(400).json({ error: 'Name required' });
+            const data = req.body;
+            const updates = [];
+            const values = [];
 
-            const updates = ['name = ?', 'bio = ?'];
-            const values = [name, bio || null];
-
-            if (photoURL !== undefined) {
+            if (data.name !== undefined) {
+                if (data.name.trim().length === 0) return res.status(400).json({ error: 'Name cannot be empty' });
+                updates.push('name = ?');
+                values.push(data.name.trim());
+            }
+            if (data.bio !== undefined) {
+                updates.push('bio = ?');
+                values.push(data.bio || null);
+            }
+            if (data.photoURL !== undefined) {
                 updates.push('photo_url = ?');
-                values.push(photoURL);
+                values.push(data.photoURL);
             }
 
-            values.push(user.id);
-            await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, values);
+            if (updates.length > 0) {
+                values.push(user.id);
+                await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, values);
+            }
 
-            return res.json({ success: true, name, bio, photoURL });
+            return res.json({ success: true, ...data });
         }
 
         // POST /api/upload/song (if needed for non-multipart uploads)

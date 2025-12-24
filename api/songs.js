@@ -111,6 +111,23 @@ module.exports = async function handler(req, res) {
             return res.status(201).json({ success: true, songId: result.insertId });
         }
 
+        // PATCH /api/songs/:id/visibility (Toggles visibility)
+        if (req.method === 'PATCH' && path.endsWith('/visibility')) {
+            const user = await getAuthUser(req);
+            if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+            const id = path.split('/')[0];
+            const [songs] = await pool.query('SELECT user_id, is_public FROM songs WHERE id = ?', [id]);
+            if (songs.length === 0) return res.status(404).json({ error: 'Song not found' });
+            if (songs[0].user_id !== user.id && user.role !== 'admin') {
+                return res.status(403).json({ error: 'Not authorized' });
+            }
+
+            const newVisibility = songs[0].is_public === 1 ? 0 : 1;
+            await pool.query('UPDATE songs SET is_public = ? WHERE id = ?', [newVisibility, id]);
+            return res.json({ success: true, isPublic: newVisibility === 1 });
+        }
+
         // PATCH /api/songs/:id
         if (req.method === 'PATCH' && path && !path.includes('/')) {
             const user = await getAuthUser(req);
