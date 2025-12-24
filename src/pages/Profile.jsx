@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePlayer } from '../context/PlayerContext';
 import api from '../services/api';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { ProfileSkeleton } from '../components/Skeletons';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { Music2, Disc, Heart, Play, Pause, MoreVertical, Trash2, Image, Edit2, X, Check, Camera, Users, Eye, EyeOff, Share2 } from 'lucide-react';
@@ -207,7 +207,7 @@ const Profile = () => {
         return '/default-avatar.png';
     };
 
-    if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><LoadingSpinner size="lg" /></div>;
+    if (loading) return <div className="pb-player"><ProfileSkeleton /></div>;
 
     return (
         <div className="pb-player">

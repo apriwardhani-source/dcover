@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePlayer } from '../context/PlayerContext';
 import api from '../services/api';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { UserProfileSkeleton } from '../components/Skeletons';
 import toast from 'react-hot-toast';
 import { Music2, Disc, Heart, Play, Pause, Users, UserPlus, UserMinus, X, Share2 } from 'lucide-react';
 import { API_URL } from '../config';
@@ -118,7 +118,7 @@ const UserProfile = () => {
         return '/default-avatar.png';
     };
 
-    if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><LoadingSpinner size="lg" /></div>;
+    if (loading) return <div className="pb-player"><UserProfileSkeleton /></div>;
 
     if (!profile) return <div className="text-center py-16">User tidak ditemukan</div>;
 

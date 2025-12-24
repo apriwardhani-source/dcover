@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { NotificationsSkeleton } from '../components/Skeletons';
 import { ArrowLeft, Bell, Heart, UserPlus, Music2 } from 'lucide-react';
 import { API_URL } from '../config';
 
@@ -57,8 +57,8 @@ const Notifications = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <LoadingSpinner size="lg" />
+            <div className="pb-player animate-slide-in-right">
+                <NotificationsSkeleton />
             </div>
         );
     }

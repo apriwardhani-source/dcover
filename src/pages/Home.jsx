@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import SongCard from '../components/SongCard';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { HomeSkeleton } from '../components/Skeletons';
 import SearchFilters from '../components/SearchFilters';
 import SuggestedUsers from '../components/SuggestedUsers';
 import { Music2, TrendingUp, Clock, Heart, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
@@ -105,8 +105,8 @@ const Home = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <LoadingSpinner size="lg" />
+            <div className="pb-player">
+                <HomeSkeleton />
             </div>
         );
     }

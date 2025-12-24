@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { AdminSkeleton } from '../components/Skeletons';
 import toast from 'react-hot-toast';
 import { Users, Music2, Disc, BarChart3, Trash2, Ban, CheckCircle, Search, X, Shield, ShieldOff, Image as ImageIcon, Plus, Eye, EyeOff, TrendingUp, Heart } from 'lucide-react';
 
@@ -125,7 +125,7 @@ const Admin = () => {
     const totalLikes = songs.reduce((acc, s) => acc + (s.likes || 0), 0);
     const topSongs = [...songs].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 5);
 
-    if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><LoadingSpinner size="lg" /></div>;
+    if (loading) return <div className="pb-player"><AdminSkeleton /></div>;
 
     return (
         <div className="pb-player">

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { usePlayer } from '../context/PlayerContext';
 import { useAuth } from '../context/AuthContext';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { AlbumDetailSkeleton } from '../components/Skeletons';
 import { ArrowLeft, Play, Pause, Music2, Clock, Heart, Share2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -83,7 +83,7 @@ const AlbumDetail = () => {
     const formatDuration = (s) => !s ? '--:--' : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
     const totalDuration = songs.reduce((a, s) => a + (s.duration || 0), 0);
 
-    if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><LoadingSpinner size="lg" /></div>;
+    if (loading) return <div className="pb-player"><AlbumDetailSkeleton /></div>;
     if (!album) return <div className="text-center py-20"><Music2 className="w-16 h-16 mx-auto text-[var(--color-text-muted)] mb-4" /><h2 className="text-xl font-bold mb-2">Album Tidak Ditemukan</h2><Link to="/" className="text-[var(--color-primary)]">Kembali</Link></div>;
 
     return (

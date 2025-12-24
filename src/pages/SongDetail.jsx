@@ -5,7 +5,7 @@ import { usePlayer } from '../context/PlayerContext';
 import api from '../services/api';
 import Comments from '../components/Comments';
 import FollowButton from '../components/FollowButton';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { SongDetailSkeleton } from '../components/Skeletons';
 import toast from 'react-hot-toast';
 import { Play, Pause, Heart, Share2, Music2, ArrowLeft, Calendar, User } from 'lucide-react';
 
@@ -104,8 +104,8 @@ const SongDetail = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <LoadingSpinner size="lg" />
+            <div className="pb-player max-w-4xl mx-auto">
+                <SongDetailSkeleton />
             </div>
         );
     }
