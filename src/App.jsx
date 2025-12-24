@@ -17,7 +17,7 @@ import UserProfile from './pages/UserProfile';
 import AlbumDetail from './pages/AlbumDetail';
 import Admin from './pages/Admin';
 import SongDetail from './pages/SongDetail';
-import Activity from './pages/Activity';
+import Notifications from './pages/Notifications';
 
 // Layout for authenticated pages
 const AuthenticatedLayout = ({ children }) => (
@@ -48,7 +48,7 @@ function App() {
               <Route path="/profile" element={<ProtectedRoute><AuthenticatedLayout><Profile /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/album/:albumId" element={<ProtectedRoute><AuthenticatedLayout><AlbumDetail /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/song/:id" element={<ProtectedRoute><AuthenticatedLayout><SongDetail /></AuthenticatedLayout></ProtectedRoute>} />
-              <Route path="/activity" element={<ProtectedRoute><AuthenticatedLayout><Activity /></AuthenticatedLayout></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><AuthenticatedLayout><Notifications /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/user/:userId" element={<ProtectedRoute><AuthenticatedLayout><UserProfile /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute adminOnly><AuthenticatedLayout><Admin /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
