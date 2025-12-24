@@ -49,26 +49,91 @@ const Upload = () => {
         }
     }, [user]);
 
-    const handleAudioSelect = (e) => {
+    const handleAudioSelect = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Check by extension first (more reliable on iOS)
         const fileName = file.name.toLowerCase();
-        const validExtensions = ['.mp3', '.wav', '.webm', '.ogg', '.m4a', '.aac', '.mp4'];
-        const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+        const isVideo = file.type.startsWith('video/') || ['.mp4', '.mov', '.webm', '.avi', '.mkv'].some(ext => fileName.endsWith(ext));
+        const isAudio = file.type.startsWith('audio/') || ['.mp3', '.wav', '.m4a', '.aac', '.ogg'].some(ext => fileName.endsWith(ext));
 
-        // Also check MIME type for browsers that report it properly
-        const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/m4a', 'video/mp4'];
-        const hasValidType = !file.type || validTypes.includes(file.type) || file.type.startsWith('audio/');
-
-        if (!hasValidExtension && !hasValidType) {
-            toast.error('Format audio tidak didukung. Gunakan MP3, WAV, M4A, dll.');
+        if (!isAudio && !isVideo) {
+            toast.error('Format tidak didukung. Gunakan audio atau video.');
             return;
         }
-        if (file.size > 20 * 1024 * 1024) { toast.error('Ukuran file maksimal 20MB'); return; }
-        setAudioFile(file);
-        setAudioPreviewUrl(URL.createObjectURL(file));
+
+        // Allow larger files for video (will be converted)
+        const maxSize = isVideo ? 100 * 1024 * 1024 : 20 * 1024 * 1024;
+        if (file.size > maxSize) {
+            toast.error(`Ukuran file maksimal ${isVideo ? '100' : '20'}MB`);
+            return;
+        }
+
+        if (isVideo) {
+            // Extract audio from video
+            toast.loading('Mengekstrak audio dari video...', { id: 'extract' });
+            try {
+                const audioBlob = await extractAudioFromVideo(file);
+                const audioFile = new File([audioBlob], file.name.replace(/\.[^.]+$/, '.webm'), { type: 'audio/webm' });
+                setAudioFile(audioFile);
+                setAudioPreviewUrl(URL.createObjectURL(audioBlob));
+                toast.success('Audio berhasil diekstrak!', { id: 'extract' });
+            } catch (error) {
+                console.error('Extract error:', error);
+                toast.error('Gagal mengekstrak audio', { id: 'extract' });
+            }
+        } else {
+            setAudioFile(file);
+            setAudioPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    // Extract audio from video using Web Audio API
+    const extractAudioFromVideo = (videoFile) => {
+        return new Promise((resolve, reject) => {
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(videoFile);
+            video.muted = true;
+
+            video.onloadedmetadata = async () => {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const source = audioContext.createMediaElementSource(video);
+                    const destination = audioContext.createMediaStreamDestination();
+                    source.connect(destination);
+
+                    const mediaRecorder = new MediaRecorder(destination.stream, { mimeType: 'audio/webm' });
+                    const chunks = [];
+
+                    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        URL.revokeObjectURL(video.src);
+                        audioContext.close();
+                        resolve(blob);
+                    };
+                    mediaRecorder.onerror = reject;
+
+                    mediaRecorder.start();
+                    video.play();
+
+                    // Stop when video ends
+                    video.onended = () => mediaRecorder.stop();
+
+                    // Or after max 10 minutes
+                    setTimeout(() => {
+                        if (mediaRecorder.state === 'recording') {
+                            video.pause();
+                            mediaRecorder.stop();
+                        }
+                    }, 600000);
+                } catch (err) {
+                    reject(err);
+                }
+            };
+
+            video.onerror = reject;
+        });
     };
 
     const handleRecordingComplete = (file, url) => {
@@ -176,9 +241,9 @@ const Upload = () => {
                                 <div onClick={() => audioInputRef.current?.click()} className="border-2 border-dashed border-[var(--color-border)] rounded-xl p-8 text-center cursor-pointer hover:border-[var(--color-primary)]">
                                     <FileAudio className="w-12 h-12 mx-auto mb-4 text-[var(--color-text-muted)]" />
                                     <p className="font-medium">Klik untuk upload</p>
-                                    <p className="text-sm text-[var(--color-text-secondary)]">MP3, WAV, WebM (max 20MB)</p>
+                                    <p className="text-sm text-[var(--color-text-secondary)]">Audio/Video - MP3, M4A, MP4, MOV (max 100MB)</p>
                                 </div>
-                                <input ref={audioInputRef} type="file" accept="audio/*" onChange={handleAudioSelect} className="hidden" />
+                                <input ref={audioInputRef} type="file" accept="audio/*,video/*" onChange={handleAudioSelect} className="hidden" />
                                 {audioFile && (
                                     <div className="mt-4 p-4 bg-[var(--color-surface-hover)] rounded-lg">
                                         <div className="flex items-center gap-3 mb-3">
