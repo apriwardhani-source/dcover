@@ -71,17 +71,31 @@ module.exports = async function handler(req, res) {
         return res.json({ success: true, role });
     }
 
+    // GET /users/by-username/:username - Get user by username
+    if (req.method === 'GET' && path.startsWith('by-username/')) {
+        const username = path.replace('by-username/', '');
+        const [users] = await pool.query('SELECT id, name, username, email, photo_url, bio, role, created_at FROM users WHERE username = ?', [username]);
+        if (users.length === 0) return res.status(404).json({ error: 'User not found' });
+        const u = users[0];
+        const [stats] = await pool.query('SELECT COUNT(*) as songCount, COALESCE(SUM(likes), 0) as totalLikes FROM songs WHERE user_id = ?', [u.id]);
+        const [albumStats] = await pool.query('SELECT COUNT(*) as albumCount FROM albums WHERE user_id = ?', [u.id]);
+        return res.json({
+            id: u.id, name: u.name, username: u.username, email: u.email, photoURL: u.photo_url, bio: u.bio, role: u.role, createdAt: u.created_at,
+            songCount: stats[0].songCount, albumCount: albumStats[0].albumCount, totalLikes: stats[0].totalLikes
+        });
+    }
+
     // GET /users/:id
     if (req.method === 'GET' && path.match(/^\d+$/)) {
         const user = await getAuthUser(req);
         if (!user) return res.status(401).json({ error: 'Unauthorized' });
-        const [users] = await pool.query('SELECT id, name, email, photo_url, bio, role, created_at FROM users WHERE id = ?', [path]);
+        const [users] = await pool.query('SELECT id, name, username, email, photo_url, bio, role, created_at FROM users WHERE id = ?', [path]);
         if (users.length === 0) return res.status(404).json({ error: 'User not found' });
         const u = users[0];
         const [stats] = await pool.query('SELECT COUNT(*) as songCount, COALESCE(SUM(likes), 0) as totalLikes FROM songs WHERE user_id = ?', [path]);
         const [albumStats] = await pool.query('SELECT COUNT(*) as albumCount FROM albums WHERE user_id = ?', [path]);
         return res.json({
-            id: u.id, name: u.name, email: u.email, photoURL: u.photo_url, bio: u.bio, role: u.role, createdAt: u.created_at,
+            id: u.id, name: u.name, username: u.username, email: u.email, photoURL: u.photo_url, bio: u.bio, role: u.role, createdAt: u.created_at,
             songCount: stats[0].songCount, albumCount: albumStats[0].albumCount, totalLikes: stats[0].totalLikes
         });
     }

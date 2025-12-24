@@ -20,13 +20,42 @@ module.exports = async function handler(req, res) {
 
             if (users.length === 0) {
                 const role = ADMIN_EMAILS.includes(email) ? 'admin' : 'user';
+
+                // Generate unique username from name
+                const baseUsername = name.toLowerCase()
+                    .replace(/[^a-z0-9]/g, '')
+                    .substring(0, 20);
+                let username = baseUsername;
+                let counter = 1;
+
+                while (true) {
+                    const [existing] = await pool.query('SELECT id FROM users WHERE username = ?', [username]);
+                    if (existing.length === 0) break;
+                    username = `${baseUsername}${counter}`;
+                    counter++;
+                }
+
                 const [result] = await pool.query(
-                    'INSERT INTO users (google_id, email, name, photo_url, role, suspended, created_at) VALUES (?, ?, ?, ?, ?, 0, NOW())',
-                    [googleId, email, name, photoURL || null, role]
+                    'INSERT INTO users (google_id, email, name, username, photo_url, role, suspended, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())',
+                    [googleId, email, name, username, photoURL || null, role]
                 );
-                user = { id: result.insertId, google_id: googleId, email, name, photo_url: photoURL, role, suspended: 0 };
+                user = { id: result.insertId, google_id: googleId, email, name, username, photo_url: photoURL, role, suspended: 0 };
             } else {
                 user = users[0];
+                // Generate username for existing users who don't have one
+                if (!user.username) {
+                    const baseUsername = user.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20);
+                    let username = baseUsername;
+                    let counter = 1;
+                    while (true) {
+                        const [existing] = await pool.query('SELECT id FROM users WHERE username = ? AND id != ?', [username, user.id]);
+                        if (existing.length === 0) break;
+                        username = `${baseUsername}${counter}`;
+                        counter++;
+                    }
+                    await pool.query('UPDATE users SET username = ? WHERE id = ?', [username, user.id]);
+                    user.username = username;
+                }
                 if (photoURL && photoURL !== user.photo_url) {
                     await pool.query('UPDATE users SET photo_url = ? WHERE id = ?', [photoURL, user.id]);
                     user.photo_url = photoURL;
@@ -40,7 +69,7 @@ module.exports = async function handler(req, res) {
             const token = createToken({ userId: user.id, email: user.email });
             return res.json({
                 token,
-                user: { id: user.id, name: user.name, email: user.email, photoURL: user.photo_url, role: user.role }
+                user: { id: user.id, name: user.name, username: user.username, email: user.email, photoURL: user.photo_url, role: user.role }
             });
         } catch (error) {
             console.error('Auth error:', error);

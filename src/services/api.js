@@ -229,6 +229,10 @@ class ApiService {
         return this.request(`/users/${userId}`);
     }
 
+    async getUserByUsername(username) {
+        return this.request(`/users/by-username/${username}`);
+    }
+
     async getSuggestedUsers() {
         return this.request('/users/suggestions');
     }

@@ -9,7 +9,7 @@ import { Music2, Disc, Heart, Play, Pause, Users, UserPlus, UserMinus, X, Share2
 import { API_URL } from '../config';
 
 const UserProfile = () => {
-    const { userId } = useParams();
+    const { userId, username } = useParams();
     const { user: currentUser } = useAuth();
     const { playSong, currentSong, isPlaying } = usePlayer();
 
@@ -25,20 +25,29 @@ const UserProfile = () => {
     const [activeTab, setActiveTab] = useState('songs');
 
     useEffect(() => {
-        if (userId) {
+        if (userId || username) {
             loadProfile();
         }
-    }, [userId]);
+    }, [userId, username]);
 
     const loadProfile = async () => {
         setLoading(true);
         try {
-            const [profileData, songsData, albumsData, followersData, followingData] = await Promise.all([
-                api.getUserProfile(userId),
-                api.getUserSongs(userId),
-                api.getUserAlbums(userId),
-                api.getFollowers(userId),
-                api.getFollowing(userId)
+            // Get profile by username or userId
+            let profileData;
+            if (username) {
+                profileData = await api.getUserByUsername(username);
+            } else {
+                profileData = await api.getUserProfile(userId);
+            }
+
+            const targetUserId = profileData.id;
+
+            const [songsData, albumsData, followersData, followingData] = await Promise.all([
+                api.getUserSongs(targetUserId),
+                api.getUserAlbums(targetUserId),
+                api.getFollowers(targetUserId),
+                api.getFollowing(targetUserId)
             ]);
 
             setProfile(profileData);
@@ -48,8 +57,8 @@ const UserProfile = () => {
             setFollowingCount(followingData.count || 0);
 
             // Check if current user follows this user
-            if (currentUser && currentUser.id !== parseInt(userId)) {
-                const followCheck = await api.checkFollowing(userId);
+            if (currentUser && currentUser.id !== targetUserId) {
+                const followCheck = await api.checkFollowing(targetUserId);
                 setIsFollowing(followCheck.following);
             }
         } catch (error) {
@@ -91,7 +100,7 @@ const UserProfile = () => {
     };
 
     const handleShare = async () => {
-        const profileUrl = `${window.location.origin}/user/${userId}`;
+        const profileUrl = `${window.location.origin}/@${profile?.username}`;
         const shareData = {
             title: `${profile?.name} di dcover`,
             text: `Cek profil ${profile?.name} di dcover! 🎵`,
@@ -122,7 +131,7 @@ const UserProfile = () => {
 
     if (!profile) return <div className="text-center py-16">User tidak ditemukan</div>;
 
-    const isOwnProfile = currentUser?.id === parseInt(userId);
+    const isOwnProfile = currentUser?.id === profile?.id;
 
     return (
         <div className="pb-player">

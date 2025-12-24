@@ -150,7 +150,7 @@ const Profile = () => {
     };
 
     const handleShareProfile = async () => {
-        const profileUrl = `${window.location.origin}/user/${user.id}`;
+        const profileUrl = `${window.location.origin}/@${user.username}`;
         const shareData = {
             title: `${user.name} di dcover`,
             text: `Cek profil ${user.name} di dcover! 🎵`,
