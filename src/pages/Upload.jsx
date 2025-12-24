@@ -94,6 +94,7 @@ const Upload = () => {
             const video = document.createElement('video');
             video.src = URL.createObjectURL(videoFile);
             video.muted = true;
+            video.playbackRate = 16; // 16x speed for fast extraction
 
             video.onloadedmetadata = async () => {
                 try {
@@ -120,13 +121,14 @@ const Upload = () => {
                     // Stop when video ends
                     video.onended = () => mediaRecorder.stop();
 
-                    // Or after max 10 minutes
+                    // Timeout based on video duration / playback speed
+                    const timeout = Math.max((video.duration / 16) * 1000 + 5000, 30000);
                     setTimeout(() => {
                         if (mediaRecorder.state === 'recording') {
                             video.pause();
                             mediaRecorder.stop();
                         }
-                    }, 600000);
+                    }, timeout);
                 } catch (err) {
                     reject(err);
                 }
