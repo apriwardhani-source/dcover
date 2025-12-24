@@ -29,7 +29,7 @@ export const getUserUrl = (user) => {
     if (!user) return '';
     const rawUsername = user.username || user.artistUsername || user.coverArtistUsername;
     const username = rawUsername?.startsWith('@') ? rawUsername.substring(1) : rawUsername;
-    if (username) return `/@${username}`;
+    if (username) return `/u/${username}`;
     const id = user.userId || user.id;
     return `/user/${id}`;
 };

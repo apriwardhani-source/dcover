@@ -50,7 +50,7 @@ function App() {
               <Route path="/song/:id" element={<ProtectedRoute><AuthenticatedLayout><SongDetail /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><AuthenticatedLayout><Notifications /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/user/:userId" element={<ProtectedRoute><AuthenticatedLayout><UserProfile /></AuthenticatedLayout></ProtectedRoute>} />
-              <Route path="/@:username" element={<ProtectedRoute><AuthenticatedLayout><UserProfile /></AuthenticatedLayout></ProtectedRoute>} />
+              <Route path="/u/:username" element={<ProtectedRoute><AuthenticatedLayout><UserProfile /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute adminOnly><AuthenticatedLayout><Admin /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

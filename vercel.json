@@ -78,7 +78,7 @@
             "handle": "filesystem"
         },
         {
-            "src": "/@(.*)",
+            "src": "/u/(.*)",
             "dest": "/index.html"
         },
         {
