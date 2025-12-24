@@ -78,6 +78,22 @@
             "handle": "filesystem"
         },
         {
+            "src": "/@(.*)",
+            "dest": "/index.html"
+        },
+        {
+            "src": "/user/(.*)",
+            "dest": "/index.html"
+        },
+        {
+            "src": "/song/(.*)",
+            "dest": "/index.html"
+        },
+        {
+            "src": "/album/(.*)",
+            "dest": "/index.html"
+        },
+        {
             "src": "/(.*)",
             "dest": "/index.html"
         }
