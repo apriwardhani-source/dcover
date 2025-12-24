@@ -74,8 +74,8 @@ module.exports = async function handler(req, res) {
 
     // GET /users/by-username/:username - Get user by username
     if (req.method === 'GET' && path.startsWith('by-username/')) {
-        const username = path.replace('by-username/', '');
-        const [users] = await pool.query('SELECT id, name, username, email, photo_url, bio, role, created_at FROM users WHERE username = ?', [username]);
+        const username = decodeURIComponent(path.replace('by-username/', '')).toLowerCase();
+        const [users] = await pool.query('SELECT id, name, username, email, photo_url, bio, role, created_at FROM users WHERE LOWER(username) = ?', [username]);
         if (users.length === 0) return res.status(404).json({ error: 'User not found' });
         const u = users[0];
         const [stats] = await pool.query('SELECT COUNT(*) as songCount, COALESCE(SUM(likes), 0) as totalLikes FROM songs WHERE user_id = ?', [u.id]);
