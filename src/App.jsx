@@ -27,7 +27,7 @@ const AuthenticatedLayout = ({ children }) => (
     <div className="noise-overlay" />
 
     <Navbar />
-    <main className="md:ml-64 px-4 md:px-8 py-6 min-h-screen relative z-10">
+    <main className="md:ml-64 px-4 md:px-8 py-6 pt-16 md:pt-6 min-h-screen relative z-10">
       {children}
     </main>
     <MusicPlayer />
