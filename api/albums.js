@@ -20,6 +20,7 @@ module.exports = async function handler(req, res) {
             title: album.title,
             coverImage: getUrl(album.cover_image, 'albums'),
             artistName: album.artist_name,
+            artistUsername: album.artist_username,
             userId: album.user_id,
             songCount: album.song_count || 0,
             createdAt: album.created_at
@@ -31,10 +32,10 @@ module.exports = async function handler(req, res) {
         if (req.method === 'GET' && path.startsWith('user/')) {
             const userId = path.replace('user/', '');
             const [albums] = await pool.query(`
-                SELECT a.*, u.name as artist_name,
+                SELECT a.*, u.name as artist_name, u.username as artist_username,
                   (SELECT COUNT(*) FROM songs WHERE album_id = a.id) as song_count
                 FROM albums a
-                LEFT JOIN users u ON a.user_id = u.id
+                JOIN users u ON a.user_id = u.id
                 WHERE a.user_id = ?
                 ORDER BY a.created_at DESC
             `, [userId]);
@@ -44,9 +45,9 @@ module.exports = async function handler(req, res) {
         // GET /api/albums/:id
         if (req.method === 'GET' && path && !path.includes('/')) {
             const [albums] = await pool.query(`
-                SELECT a.*, u.name as artist_name
+                SELECT a.*, u.name as artist_name, u.username as artist_username
                 FROM albums a
-                LEFT JOIN users u ON a.user_id = u.id
+                JOIN users u ON a.user_id = u.id
                 WHERE a.id = ?
             `, [path]);
             if (albums.length === 0) return res.status(404).json({ error: 'Album not found' });

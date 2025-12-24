@@ -52,7 +52,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path.startsWith('followers/')) {
         const userId = path.split('/')[1];
         const [followers] = await pool.query(`
-            SELECT u.id, u.name, u.photo_url,
+            SELECT u.id, u.name, u.username, u.photo_url,
                    (SELECT COUNT(*) FROM songs WHERE user_id = u.id) as song_count
             FROM follows f
             JOIN users u ON f.follower_id = u.id
@@ -64,6 +64,7 @@ module.exports = async function handler(req, res) {
             users: followers.map(u => ({
                 id: u.id,
                 name: u.name,
+                username: u.username,
                 photoURL: u.photo_url,
                 songCount: u.song_count
             }))
@@ -74,7 +75,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path.startsWith('following/')) {
         const userId = path.split('/')[1];
         const [following] = await pool.query(`
-            SELECT u.id, u.name, u.photo_url,
+            SELECT u.id, u.name, u.username, u.photo_url,
                    (SELECT COUNT(*) FROM songs WHERE user_id = u.id) as song_count
             FROM follows f
             JOIN users u ON f.following_id = u.id
@@ -86,6 +87,7 @@ module.exports = async function handler(req, res) {
             users: following.map(u => ({
                 id: u.id,
                 name: u.name,
+                username: u.username,
                 photoURL: u.photo_url,
                 songCount: u.song_count
             }))

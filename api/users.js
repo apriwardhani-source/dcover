@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
 
         // Get users that current user is NOT following, excluding self
         const [users] = await pool.query(`
-            SELECT u.id, u.name, u.photo_url,
+            SELECT u.id, u.name, u.username, u.photo_url,
                    (SELECT COUNT(*) FROM songs WHERE user_id = u.id) as song_count,
                    (SELECT COUNT(*) FROM follows WHERE following_id = u.id) as follower_count
             FROM users u
@@ -29,6 +29,7 @@ module.exports = async function handler(req, res) {
         return res.json(users.map(u => ({
             id: u.id,
             name: u.name,
+            username: u.username,
             photoURL: u.photo_url,
             songCount: u.song_count,
             followerCount: u.follower_count
@@ -109,7 +110,7 @@ module.exports = async function handler(req, res) {
 
         try {
             const [notifications] = await pool.query(`
-                SELECT n.*, u.name as from_name, u.photo_url as from_photo
+                SELECT n.*, u.name as from_name, u.username as from_username, u.photo_url as from_photo
                 FROM notifications n
                 LEFT JOIN users u ON n.from_user_id = u.id
                 WHERE n.user_id = ?
@@ -131,6 +132,7 @@ module.exports = async function handler(req, res) {
                     fromUser: n.from_user_id ? {
                         id: n.from_user_id,
                         name: n.from_name,
+                        username: n.from_username,
                         photoURL: n.from_photo
                     } : null,
                     isRead: n.is_read === 1,

@@ -86,7 +86,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path === 'me') {
         const user = await getAuthUser(req);
         if (!user) return res.status(401).json({ error: 'Unauthorized' });
-        return res.json({ id: user.id, name: user.name, email: user.email, photoURL: user.photo_url, role: user.role });
+        return res.json({ id: user.id, name: user.name, username: user.username, email: user.email, photoURL: user.photo_url, role: user.role });
     }
 
     return res.status(404).json({ error: 'Not found' });
