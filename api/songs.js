@@ -125,13 +125,14 @@ module.exports = async function handler(req, res) {
         if (req.method === 'POST' && path === '') {
             const user = await getAuthUser(req);
             if (!user) return res.status(401).json({ error: 'Unauthorized' });
-            const { title, originalArtist, audioFile, albumId, lyrics } = req.body;
-            if (!title || !originalArtist || !audioFile) {
+            const { title, originalArtist, audioFile, audioUrl, albumId, lyrics, coverImage } = req.body;
+            const audioPath = audioUrl || audioFile;
+            if (!title || !originalArtist || !audioPath) {
                 return res.status(400).json({ error: 'Missing required fields' });
             }
             const [result] = await pool.query(
-                'INSERT INTO songs (title, original_artist, audio_file, album_id, user_id, likes, lyrics, created_at, is_public) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 1)',
-                [title, originalArtist, audioFile, albumId || null, user.id, 0, lyrics || null]
+                'INSERT INTO songs (title, original_artist, audio_file, album_id, user_id, likes, lyrics, cover_image, created_at, is_public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), 1)',
+                [title, originalArtist, audioPath, albumId || null, user.id, 0, lyrics || null, coverImage || null]
             );
             return res.status(201).json({ success: true, songId: result.insertId });
         }

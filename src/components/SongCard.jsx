@@ -7,7 +7,7 @@ import api from '../services/api';
 import { API_URL } from '../config';
 import { getImageUrl } from '../utils/url';
 
-import { getSongUrl } from '../utils/slug';
+import { getSongUrl, getUserUrl } from '../utils/slug';
 
 const SongCard = ({ song, songs, index, onLikeChange }) => {
     const { playSong, currentSong, isPlaying } = usePlayer();

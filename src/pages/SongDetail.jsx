@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 import { Play, Pause, Heart, Share2, Music2, ArrowLeft, Calendar, User } from 'lucide-react';
 
 import { API_URL } from '../config';
-import { getAlbumUrl } from '../utils/slug';
+import { getAlbumUrl, getUserUrl } from '../utils/slug';
 
 const SongDetail = () => {
     const { id } = useParams();

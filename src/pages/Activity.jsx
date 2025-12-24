@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Music2, Heart, Play, User, Calendar, MessageCircle, TrendingUp, Clock, UserPlus } from 'lucide-react';
-import { getSongUrl } from '../utils/slug';
+import { getSongUrl, getUserUrl } from '../utils/slug';
 
 import { API_URL } from '../config';
 

@@ -8,7 +8,7 @@ import SearchFilters from '../components/SearchFilters';
 import SuggestedUsers from '../components/SuggestedUsers';
 import { Music2, TrendingUp, Clock, Heart, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAlbumUrl, getSongUrl } from '../utils/slug';
+import { getAlbumUrl, getSongUrl, getUserUrl } from '../utils/slug';
 
 import { API_URL } from '../config';
 
