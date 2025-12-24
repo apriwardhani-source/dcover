@@ -17,8 +17,11 @@ const MusicPlayer = () => {
 
     if (!currentSong) return null;
 
-    const formatTime = (s) => isNaN(s) ? '0:00' : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-    const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+    const formatTime = (s) => {
+        if (!s || isNaN(s) || !isFinite(s) || s < 0) return '0:00';
+        return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    };
+    const progress = (duration > 0 && isFinite(duration)) ? (currentTime / duration) * 100 : 0;
 
     const getCoverImage = () => {
         if (currentSong.coverImage) return `${API_URL}${currentSong.coverImage}`;
