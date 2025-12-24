@@ -366,28 +366,27 @@ const Profile = () => {
                     </div>
                 ) : <div className="text-center py-16"><Music2 className="w-16 h-16 mx-auto text-[var(--color-text-muted)] mb-4" /><Link to="/upload" className="btn btn-primary">Upload</Link></div>
             ) : (
-                albums.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {albums.map(album => (
-                            <div key={album.albumId} className="group relative">
-                                <Link to={getAlbumUrl(album)} className="card hover-lift block">
-                                    <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
-                                        {album.coverImage ? <img src={getImageUrl(album.coverImage)} className="w-full h-full object-cover" /> : <Disc className="w-12 h-12 text-[var(--color-text-muted)] m-auto mt-8" />}
-                                    </div>
-                                    <h3 className="font-bold truncate">{album.title}</h3>
-                                    <p className="text-sm text-[var(--color-text-secondary)]">{album.songCount || 0} lagu</p>
-                                </Link>
-                                <button onClick={() => setMenuOpen(menuOpen === album.albumId ? null : album.albumId)} className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100"><MoreVertical className="w-4 h-4" /></button>
-                                {menuOpen === album.albumId && (
-                                    <div className="absolute right-0 top-10 w-48 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-xl z-10">
-                                        <button onClick={() => { setEditingCover({ type: 'albums', id: album.albumId }); coverInputRef.current?.click(); setMenuOpen(null); }} className="flex items-center gap-3 w-full px-4 py-3 hover:bg-[var(--color-surface-hover)]"><Image className="w-4 h-4" />Edit Cover</button>
-                                        <button onClick={() => handleDeleteAlbum(album)} className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-[var(--color-surface-hover)]"><Trash2 className="w-4 h-4" />Hapus</button>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                ) : <div className="text-center py-16"><Disc className="w-16 h-16 mx-auto text-[var(--color-text-muted)] mb-4" /><Link to="/upload" className="btn btn-primary">Buat Album</Link></div>}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {albums.length > 0 ? albums.map(album => (
+                        <div key={album.albumId} className="group relative">
+                            <Link to={getAlbumUrl(album)} className="card hover-lift block">
+                                <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
+                                    {album.coverImage ? <img src={getImageUrl(album.coverImage)} className="w-full h-full object-cover" /> : <Disc className="w-12 h-12 text-[var(--color-text-muted)] m-auto mt-8" />}
+                                </div>
+                                <h3 className="font-bold truncate">{album.title}</h3>
+                                <p className="text-sm text-[var(--color-text-secondary)]">{album.songCount || 0} lagu</p>
+                            </Link>
+                            <button onClick={() => setMenuOpen(menuOpen === album.albumId ? null : album.albumId)} className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100"><MoreVertical className="w-4 h-4" /></button>
+                            {menuOpen === album.albumId && (
+                                <div className="absolute right-0 top-10 w-48 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-xl z-10">
+                                    <button onClick={() => { setEditingCover({ type: 'albums', id: album.albumId }); coverInputRef.current?.click(); setMenuOpen(null); }} className="flex items-center gap-3 w-full px-4 py-3 hover:bg-[var(--color-surface-hover)]"><Image className="w-4 h-4" />Edit Cover</button>
+                                    <button onClick={() => handleDeleteAlbum(album)} className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-[var(--color-surface-hover)]"><Trash2 className="w-4 h-4" />Hapus</button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            ) : <div className="text-center py-16"><Disc className="w-16 h-16 mx-auto text-[var(--color-text-muted)] mb-4" /><Link to="/upload" className="btn btn-primary">Buat Album</Link></div>}
 
             <input ref={coverInputRef} type="file" accept="image/*" onChange={(e) => editingCover && handleCoverUpload(e, editingCover.type, editingCover.id)} className="hidden" />
             {menuOpen && <div className="fixed inset-0 z-0" onClick={() => setMenuOpen(null)} />}

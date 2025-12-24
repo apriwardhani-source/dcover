@@ -1,53 +1,28 @@
+```javascript
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { UserPlus, Music2 } from 'lucide-react';
 import api from '../services/api';
-import toast from 'react-hot-toast';
+import { getUserUrl } from '../utils/slug';
 
 const SuggestedUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [followingIds, setFollowingIds] = useState(new Set());
 
     useEffect(() => {
-        loadSuggestions();
+        loadUsers();
     }, []);
 
-    const loadSuggestions = async () => {
+    const loadUsers = async () => {
         try {
             const data = await api.getSuggestedUsers();
-            setUsers(data);
+            setUsers(data || []);
         } catch (error) {
-            console.error('Failed to load suggestions:', error);
+            console.error('Failed to load users:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleFollow = async (e, userId) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try {
-            await api.followUser(userId);
-            setFollowingIds(prev => new Set([...prev, userId]));
-            toast.success('Berhasil follow!');
-        } catch (error) {
-            toast.error('Gagal follow');
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex gap-3 overflow-x-auto no-scrollbar py-2">
-                {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="flex-shrink-0 w-32 animate-pulse">
-                        <div className="w-16 h-16 rounded-full bg-[var(--color-surface-hover)] mx-auto mb-2" />
-                        <div className="h-3 bg-[var(--color-surface-hover)] rounded w-20 mx-auto" />
-                    </div>
-                ))}
-            </div>
-        );
-    }
 
     if (users.length === 0) return null;
 
