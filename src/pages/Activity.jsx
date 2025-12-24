@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Music2, Heart, Play, User, Calendar, MessageSquare, TrendingUp } from 'lucide-react';
+import { Music2, Heart, Play, User, Calendar, MessageCircle, TrendingUp, Clock, UserPlus } from 'lucide-react';
 import { getSongUrl } from '../utils/slug';
 
 import { API_URL } from '../config';
@@ -72,7 +72,7 @@ const Activity = () => {
                 return (
                     <span>
                         <strong>{activity.user.name}</strong> mengupload lagu baru{' '}
-                        <Link to={`/song/${activity.song.songId}`} className="text-[var(--color-primary)] hover:underline">
+                        <Link to={getSongUrl(activity.song)} className="text-[var(--color-primary)] hover:underline">
                             "{activity.song.title}"
                         </Link>
                     </span>
@@ -81,7 +81,7 @@ const Activity = () => {
                 return (
                     <span>
                         <strong>{activity.user.name}</strong> menyukai lagu{' '}
-                        <Link to={`/song/${activity.song.songId}`} className="text-[var(--color-primary)] hover:underline">
+                        <Link to={getSongUrl(activity.song)} className="text-[var(--color-primary)] hover:underline">
                             "{activity.song.title}"
                         </Link>
                     </span>
