@@ -52,8 +52,9 @@ const Notifications = () => {
     };
 
     const getNotificationLink = (n) => {
-        if (n.type === 'follow' && n.fromUser?.id) return getUserUrl({ id: n.fromUser.id, username: n.fromUser.username });
-        if (n.type === 'like' && n.relatedId) return getSongUrl({ id: n.relatedId, title: 'song' }); // We don't have title here, but id-song is fine
+        if (n.type === 'follow' && n.fromUser?.id) return getUserUrl(n.fromUser);
+        if (n.type === 'like' && n.relatedId) return `/song/${n.relatedId}`;
+        if (n.fromUser?.id) return getUserUrl(n.fromUser);
         return '/';
     };
 

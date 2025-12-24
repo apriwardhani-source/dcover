@@ -39,41 +39,48 @@ const SongCard = ({ song, songs, index, onLikeChange }) => {
     };
 
     return (
-        <Link to={getSongUrl(song)} className="card hover-lift group cursor-pointer block">
-            <div className="relative aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
-                {getCoverImage() ? (
-                    <img src={getCoverImage()} alt={song.title} className="w-full h-full object-cover" />
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                        <Music2 className="w-12 h-12 text-[var(--color-text-muted)]" />
-                    </div>
-                )}
+        <div className="card hover-lift group block">
+            <Link to={getSongUrl(song)} className="cursor-pointer block">
+                <div className="relative aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
+                    {getCoverImage() ? (
+                        <img src={getCoverImage()} alt={song.title} className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <Music2 className="w-12 h-12 text-[var(--color-text-muted)]" />
+                        </div>
+                    )}
 
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                        onClick={handlePlay}
-                        className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center hover:scale-105 transition-transform"
-                    >
-                        {isCurrentSong && isPlaying ? (
-                            <Pause className="w-5 h-5" fill="currentColor" />
-                        ) : (
-                            <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
-                        )}
-                    </button>
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                            onClick={handlePlay}
+                            className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center hover:scale-105 transition-transform"
+                        >
+                            {isCurrentSong && isPlaying ? (
+                                <Pause className="w-5 h-5" fill="currentColor" />
+                            ) : (
+                                <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Playing Indicator */}
+                    {isCurrentSong && isPlaying && (
+                        <div className="absolute bottom-2 left-2 playing-indicator">
+                            {[...Array(4)].map((_, i) => (<span key={i} className="wave-bar" />))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Playing Indicator */}
-                {isCurrentSong && isPlaying && (
-                    <div className="absolute bottom-2 left-2 playing-indicator">
-                        {[...Array(4)].map((_, i) => (<span key={i} className="wave-bar" />))}
-                    </div>
-                )}
-            </div>
+                <div className="space-y-1">
+                    <h3 className={`font-bold truncate ${isCurrentSong ? 'text-[var(--color-primary)]' : ''}`}>{song.title}</h3>
+                </div>
+            </Link>
 
-            <div className="space-y-1">
-                <h3 className={`font-bold truncate ${isCurrentSong ? 'text-[var(--color-primary)]' : ''}`}>{song.title}</h3>
-                <p className="text-sm text-[var(--color-text-secondary)] truncate">Cover by {song.coverArtist}</p>
+            <div className="space-y-1 mt-1">
+                <Link to={getUserUrl({ userId: song.userId, username: song.coverArtistUsername })} className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] truncate block">
+                    Cover by {song.coverArtist}
+                </Link>
                 <p className="text-xs text-[var(--color-text-muted)] truncate">Original: {song.originalArtist}</p>
             </div>
 
@@ -90,7 +97,7 @@ const SongCard = ({ song, songs, index, onLikeChange }) => {
                     </span>
                 </div>
             )}
-        </Link>
+        </div>
     );
 };
 

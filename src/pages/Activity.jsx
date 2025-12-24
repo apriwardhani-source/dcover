@@ -26,7 +26,7 @@ const Activity = () => {
             const songActivities = songs.slice(0, 20).map(song => ({
                 id: `song-${song.songId}`,
                 type: 'new_song',
-                user: { name: song.coverArtist, id: song.userId },
+                user: { name: song.coverArtist, id: song.userId, username: song.coverArtistUsername },
                 song: song,
                 createdAt: song.createdAt
             }));
@@ -71,7 +71,9 @@ const Activity = () => {
             case 'new_song':
                 return (
                     <span>
-                        <strong>{activity.user.name}</strong> mengupload lagu baru{' '}
+                        <Link to={getUserUrl(activity.user)} className="font-bold hover:text-[var(--color-primary)] transition-colors">
+                            {activity.user.name}
+                        </Link> mengupload lagu baru{' '}
                         <Link to={getSongUrl(activity.song)} className="text-[var(--color-primary)] hover:underline">
                             "{activity.song.title}"
                         </Link>
@@ -80,7 +82,9 @@ const Activity = () => {
             case 'like':
                 return (
                     <span>
-                        <strong>{activity.user.name}</strong> menyukai lagu{' '}
+                        <Link to={getUserUrl(activity.user)} className="font-bold hover:text-[var(--color-primary)] transition-colors">
+                            {activity.user.name}
+                        </Link> menyukai lagu{' '}
                         <Link to={getSongUrl(activity.song)} className="text-[var(--color-primary)] hover:underline">
                             "{activity.song.title}"
                         </Link>

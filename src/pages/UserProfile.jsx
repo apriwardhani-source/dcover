@@ -74,12 +74,12 @@ const UserProfile = () => {
     const handleFollow = async () => {
         try {
             if (isFollowing) {
-                await api.unfollowUser(userId);
+                await api.unfollowUser(profile.id);
                 setIsFollowing(false);
                 setFollowersCount(c => c - 1);
                 toast.success('Berhenti mengikuti');
             } else {
-                await api.followUser(userId);
+                await api.followUser(profile.id);
                 setIsFollowing(true);
                 setFollowersCount(c => c + 1);
                 toast.success('Berhasil mengikuti!');
@@ -93,8 +93,8 @@ const UserProfile = () => {
         setShowModal(type);
         try {
             const data = type === 'followers'
-                ? await api.getFollowers(userId)
-                : await api.getFollowing(userId);
+                ? await api.getFollowers(profile.id)
+                : await api.getFollowing(profile.id);
             setModalUsers(data.users || []);
         } catch (error) {
             console.error('Failed to load users:', error);

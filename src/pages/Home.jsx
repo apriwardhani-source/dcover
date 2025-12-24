@@ -229,25 +229,26 @@ const Home = () => {
                             <h2 className="text-xl font-bold mb-4">💿 Album Terbaru</h2>
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                                 {albums.slice(0, 5).map((album) => (
-                                    <Link key={album.albumId} to={getAlbumUrl(album)} className="card hover-lift">
-                                        <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
-                                            {album.coverImage ? (
-                                                <img src={getImageUrl(album.coverImage)} alt={album.title} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center">
-                                                    <Music2 className="w-12 h-12 text-[var(--color-text-muted)]" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <h3 className="font-bold truncate">{album.title}</h3>
+                                    <div key={album.albumId} className="card hover-lift">
+                                        <Link to={getAlbumUrl(album)} className="block">
+                                            <div className="aspect-square rounded-md overflow-hidden mb-4 bg-[var(--color-surface-hover)]">
+                                                {album.coverImage ? (
+                                                    <img src={getImageUrl(album.coverImage)} alt={album.title} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <Music2 className="w-12 h-12 text-[var(--color-text-muted)]" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <h3 className="font-bold truncate">{album.title}</h3>
+                                        </Link>
                                         <Link
-                                            to={getUserUrl({ id: album.userId, username: album.artistUsername })}
-                                            className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] truncate block"
-                                            onClick={(e) => e.stopPropagation()}
+                                            to={getUserUrl({ userId: album.userId, artistUsername: album.artistUsername })}
+                                            className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] truncate block mt-1"
                                         >
                                             oleh {album.artistName}
                                         </Link>
-                                    </Link>
+                                    </div>
                                 ))}
                             </div>
                         </section>

@@ -27,6 +27,9 @@ export const getAlbumUrl = (album) => {
 
 export const getUserUrl = (user) => {
     if (!user) return '';
-    if (user.username) return `/@${user.username}`;
-    return `/user/${user.id}`;
+    const rawUsername = user.username || user.artistUsername || user.coverArtistUsername;
+    const username = rawUsername?.startsWith('@') ? rawUsername.substring(1) : rawUsername;
+    if (username) return `/@${username}`;
+    const id = user.userId || user.id;
+    return `/user/${id}`;
 };

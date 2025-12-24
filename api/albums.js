@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
         // GET /api/albums - All albums
         if (req.method === 'GET' && path === '') {
             const [albums] = await pool.query(`
-                SELECT a.*, u.name as artist_name,
+                SELECT a.*, u.name as artist_name, u.username as artist_username,
                   (SELECT COUNT(*) FROM songs WHERE album_id = a.id) as song_count
                 FROM albums a
                 LEFT JOIN users u ON a.user_id = u.id
