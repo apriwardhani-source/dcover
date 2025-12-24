@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
       FROM songs s
       LEFT JOIN users u ON s.user_id = u.id
       LEFT JOIN albums a ON s.album_id = a.id
-      WHERE s.is_public = 1
+      WHERE (s.is_public = 1 OR s.is_public IS NULL)
       ORDER BY s.created_at DESC
     `);
 
