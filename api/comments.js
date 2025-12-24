@@ -12,13 +12,13 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path.startsWith('song/')) {
         const songId = path.split('/')[1];
         const [comments] = await pool.query(`
-            SELECT c.*, u.name as user_name, u.photo_url as user_photo
+            SELECT c.*, u.name as user_name, u.username as user_username, u.photo_url as user_photo
             FROM comments c LEFT JOIN users u ON c.user_id = u.id
             WHERE c.song_id = ? ORDER BY c.created_at DESC
         `, [songId]);
         return res.json(comments.map(c => ({
             id: c.id, content: c.content, songId: c.song_id, userId: c.user_id,
-            userName: c.user_name, userPhoto: c.user_photo, createdAt: c.created_at
+            userName: c.user_name, userUsername: c.user_username, userPhoto: c.user_photo, createdAt: c.created_at
         })));
     }
 
@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
         const [result] = await pool.query('INSERT INTO comments (song_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())', [songId, user.id, content.trim()]);
         return res.status(201).json({
             id: result.insertId, content: content.trim(), songId, userId: user.id,
-            userName: user.name, userPhoto: user.photo_url, createdAt: new Date().toISOString()
+            userName: user.name, userUsername: user.username, userPhoto: user.photo_url, createdAt: new Date().toISOString()
         });
     }
 
