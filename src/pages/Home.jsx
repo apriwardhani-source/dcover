@@ -240,7 +240,13 @@ const Home = () => {
                                             )}
                                         </div>
                                         <h3 className="font-bold truncate">{album.title}</h3>
-                                        <p className="text-sm text-[var(--color-text-secondary)] truncate">oleh {album.artistName}</p>
+                                        <Link
+                                            to={getUserUrl({ id: album.userId, username: album.artistUsername })}
+                                            className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] truncate block"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            oleh {album.artistName}
+                                        </Link>
                                     </Link>
                                 ))}
                             </div>

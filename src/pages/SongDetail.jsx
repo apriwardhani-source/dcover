@@ -150,9 +150,13 @@ const SongDetail = () => {
 
                     {/* Artist Info */}
                     <div className="flex items-center gap-4 mb-6 p-4 bg-[var(--color-surface)] rounded-lg">
-                        <User className="w-10 h-10 text-[var(--color-text-muted)]" />
-                        <div className="flex-1">
-                            <p className="font-medium">{song.coverArtist}</p>
+                        <Link to={getUserUrl({ id: song.userId, username: song.coverArtistUsername })}>
+                            <User className="w-10 h-10 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors" />
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                            <Link to={getUserUrl({ id: song.userId, username: song.coverArtistUsername })} className="font-medium hover:text-[var(--color-primary)] transition-colors truncate block">
+                                {song.coverArtist}
+                            </Link>
                             <p className="text-sm text-[var(--color-text-secondary)]">{artistFollowers} followers</p>
                         </div>
                         {song.userId && <FollowButton userId={song.userId} userName={song.coverArtist} onFollowChange={loadSong} />}
