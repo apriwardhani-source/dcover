@@ -93,8 +93,8 @@ const Upload = () => {
         return new Promise((resolve, reject) => {
             const video = document.createElement('video');
             video.src = URL.createObjectURL(videoFile);
-            video.muted = true;
-            video.playbackRate = 16; // 16x speed for fast extraction
+            video.muted = false; // Need unmuted for audio capture
+            video.volume = 0; // But set volume to 0 so user doesn't hear
 
             video.onloadedmetadata = async () => {
                 try {
@@ -102,27 +102,49 @@ const Upload = () => {
                     const source = audioContext.createMediaElementSource(video);
                     const destination = audioContext.createMediaStreamDestination();
                     source.connect(destination);
+                    // Also connect to context destination to enable audio processing
+                    source.connect(audioContext.destination);
 
-                    const mediaRecorder = new MediaRecorder(destination.stream, { mimeType: 'audio/webm' });
+                    // Try different MIME types for better compatibility
+                    let mimeType = 'audio/webm;codecs=opus';
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/webm';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/ogg';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/mp4';
+                    }
+
+                    const mediaRecorder = new MediaRecorder(destination.stream, { mimeType });
                     const chunks = [];
 
-                    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) chunks.push(e.data);
+                    };
+
                     mediaRecorder.onstop = () => {
-                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
                         URL.revokeObjectURL(video.src);
                         audioContext.close();
                         resolve(blob);
                     };
                     mediaRecorder.onerror = reject;
 
-                    mediaRecorder.start();
+                    // Request data every second for progress
+                    mediaRecorder.start(1000);
                     video.play();
 
                     // Stop when video ends
-                    video.onended = () => mediaRecorder.stop();
+                    video.onended = () => {
+                        if (mediaRecorder.state === 'recording') {
+                            mediaRecorder.stop();
+                        }
+                    };
 
-                    // Timeout based on video duration / playback speed
-                    const timeout = Math.max((video.duration / 16) * 1000 + 5000, 30000);
+                    // Safety timeout (video duration + buffer)
+                    const timeout = (video.duration * 1000) + 10000;
                     setTimeout(() => {
                         if (mediaRecorder.state === 'recording') {
                             video.pause();
