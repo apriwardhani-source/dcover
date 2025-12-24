@@ -103,25 +103,23 @@ module.exports = async function handler(req, res) {
                 return res.status(403).json({ error: 'Not authorized' });
             }
 
-            const { title, coverImage } = req.body;
-
+            const data = req.body;
             const updates = [];
             const values = [];
 
-            if (title !== undefined) { updates.push('title = ?'); values.push(title); }
-            if (coverImage !== undefined) { updates.push('cover_image = ?'); values.push(coverImage); }
+            if (data.title !== undefined) { updates.push('title = ?'); values.push(data.title); }
+            if (data.coverImage !== undefined) { updates.push('cover_image = ?'); values.push(data.coverImage); }
+            if (data.cover_image !== undefined) { updates.push('cover_image = ?'); values.push(data.cover_image); }
 
-            if (updates.length === 0) {
-                return res.json({ success: true, message: 'No changes made' });
+            if (updates.length > 0) {
+                values.push(id);
+                await pool.query(
+                    `UPDATE albums SET ${updates.join(', ')} WHERE id = ?`,
+                    values
+                );
             }
 
-            values.push(id);
-            await pool.query(
-                `UPDATE albums SET ${updates.join(', ')} WHERE id = ?`,
-                values
-            );
-
-            return res.json({ success: true, coverImage });
+            return res.json({ success: true, message: 'Album updated' });
         } catch (error) {
             console.error('Update album error:', error);
             return res.status(500).json({ error: 'Failed to update album: ' + error.message });

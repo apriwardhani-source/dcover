@@ -227,17 +227,17 @@ module.exports = async function handler(req, res) {
                 return res.status(403).json({ error: 'Not authorized' });
             }
 
-            const { title, originalArtist, coverImage, lyrics, isPublic, albumId } = req.body;
-
+            const data = req.body;
             const updates = [];
             const values = [];
 
-            if (title !== undefined) { updates.push('title = ?'); values.push(title); }
-            if (originalArtist !== undefined) { updates.push('original_artist = ?'); values.push(originalArtist); }
-            if (coverImage !== undefined) { updates.push('cover_image = ?'); values.push(coverImage); }
-            if (lyrics !== undefined) { updates.push('lyrics = ?'); values.push(lyrics); }
-            if (isPublic !== undefined) { updates.push('is_public = ?'); values.push(isPublic ? 1 : 0); }
-            if (albumId !== undefined) { updates.push('album_id = ?'); values.push(albumId); }
+            if (data.title !== undefined) { updates.push('title = ?'); values.push(data.title); }
+            if (data.originalArtist !== undefined) { updates.push('original_artist = ?'); values.push(data.originalArtist); }
+            if (data.coverImage !== undefined) { updates.push('cover_image = ?'); values.push(data.coverImage); }
+            if (data.cover_image !== undefined) { updates.push('cover_image = ?'); values.push(data.cover_image); }
+            if (data.lyrics !== undefined) { updates.push('lyrics = ?'); values.push(data.lyrics); }
+            if (data.isPublic !== undefined) { updates.push('is_public = ?'); values.push(data.isPublic ? 1 : 0); }
+            if (data.albumId !== undefined) { updates.push('album_id = ?'); values.push(data.albumId); }
 
             if (updates.length > 0) {
                 values.push(id);
@@ -247,7 +247,7 @@ module.exports = async function handler(req, res) {
                 );
             }
 
-            return res.json({ success: true, coverImage });
+            return res.json({ success: true, message: 'Song updated' });
         } catch (error) {
             console.error('Update song error:', error);
             return res.status(500).json({ error: 'Failed to update song: ' + error.message });
