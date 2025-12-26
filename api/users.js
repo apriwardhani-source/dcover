@@ -231,15 +231,33 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    // GET /users/messages/:conversationId - Get messages
+    // GET /users/messages/:conversationId - Get messages and otherUser
     if (req.method === 'GET' && path.startsWith('messages/') && !path.includes('user/')) {
         const user = await getAuthUser(req);
         if (!user) return res.status(401).json({ error: 'Unauthorized' });
         const conversationId = path.replace('messages/', '');
 
         try {
-            const [conv] = await pool.query('SELECT * FROM conversations WHERE id = ? AND (user1_id = ? OR user2_id = ?)', [conversationId, user.id, user.id]);
+            const [conv] = await pool.query(`
+                SELECT c.*, 
+                u1.id as u1_id, u1.name as u1_name, u1.username as u1_username, u1.photo_url as u1_photo,
+                u2.id as u2_id, u2.name as u2_name, u2.username as u2_username, u2.photo_url as u2_photo
+                FROM conversations c
+                JOIN users u1 ON u1.id = c.user1_id
+                JOIN users u2 ON u2.id = c.user2_id
+                WHERE c.id = ? AND (c.user1_id = ? OR c.user2_id = ?)
+            `, [conversationId, user.id, user.id]);
+
             if (conv.length === 0) return res.status(403).json({ error: 'Access denied' });
+
+            const conversation = conv[0];
+            const isUser1 = conversation.user1_id === user.id;
+            const otherUser = {
+                id: isUser1 ? conversation.u2_id : conversation.u1_id,
+                name: isUser1 ? conversation.u2_name : conversation.u1_name,
+                username: isUser1 ? conversation.u2_username : conversation.u1_username,
+                photo: isUser1 ? conversation.u2_photo : conversation.u1_photo
+            };
 
             await pool.query('UPDATE messages SET is_read = 1 WHERE conversation_id = ? AND sender_id != ?', [conversationId, user.id]);
 
@@ -249,12 +267,15 @@ module.exports = async function handler(req, res) {
                 WHERE m.conversation_id = ? ORDER BY m.created_at ASC
             `, [conversationId]);
 
-            return res.json(messages.map(m => ({
-                id: m.id, content: m.content, senderId: m.sender_id, senderName: m.sender_name, senderPhoto: m.sender_photo, isRead: m.is_read === 1, createdAt: m.created_at
-            })));
+            return res.json({
+                otherUser,
+                messages: messages.map(m => ({
+                    id: m.id, content: m.content, senderId: m.sender_id, senderName: m.sender_name, senderPhoto: m.sender_photo, isRead: m.is_read === 1, createdAt: m.created_at
+                }))
+            });
         } catch (error) {
             console.error('Get messages error:', error);
-            return res.status(500).json({ error: 'Failed to get messages' });
+            return res.status(500).json({ error: error.message || 'Failed to get messages' });
         }
     }
 

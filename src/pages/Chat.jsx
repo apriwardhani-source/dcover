@@ -32,20 +32,9 @@ const Chat = () => {
 
     const loadMessages = async () => {
         try {
-            const data = await api.getMessages(conversationId);
-            setMessages(data);
-
-            // Get other user info from messages
-            if (data.length > 0 && user) {
-                const otherMsg = data.find(m => m.senderId !== user.id);
-                if (otherMsg) {
-                    setOtherUser({
-                        id: otherMsg.senderId,
-                        name: otherMsg.senderName,
-                        photo: otherMsg.senderPhoto
-                    });
-                }
-            }
+            const { messages, otherUser } = await api.getMessages(conversationId);
+            setMessages(messages || []);
+            setOtherUser(otherUser);
         } catch (error) {
             console.error('Load messages error:', error);
         } finally {
@@ -149,8 +138,8 @@ const Chat = () => {
                                 <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[75%] ${isMe ? 'order-2' : ''}`}>
                                         <div className={`px-4 py-2.5 rounded-2xl ${isMe
-                                                ? 'bg-[var(--color-primary)] text-black rounded-br-md'
-                                                : 'bg-[var(--color-surface-hover)] rounded-bl-md'
+                                            ? 'bg-[var(--color-primary)] text-black rounded-br-md'
+                                            : 'bg-[var(--color-surface-hover)] rounded-bl-md'
                                             }`}>
                                             <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                                         </div>
