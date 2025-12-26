@@ -19,6 +19,9 @@ export const PlayerProvider = ({ children }) => {
     const [repeat, setRepeat] = useState('off'); // 'off', 'all', 'one'
     const [showQueue, setShowQueue] = useState(false);
 
+    // Store playNext function in ref so event listener can access latest version
+    const playNextRef = useRef(null);
+
     useEffect(() => {
         const audio = audioRef.current;
 
@@ -28,8 +31,8 @@ export const PlayerProvider = ({ children }) => {
             if (repeat === 'one') {
                 audio.currentTime = 0;
                 audio.play();
-            } else {
-                playNext();
+            } else if (playNextRef.current) {
+                playNextRef.current();
             }
         };
         const handleError = (e) => {
@@ -220,6 +223,11 @@ export const PlayerProvider = ({ children }) => {
         setQueueIndex(nextIndex);
         playSong(queue[nextIndex], null, nextIndex);
     };
+
+    // Keep playNextRef updated with latest playNext function
+    useEffect(() => {
+        playNextRef.current = playNext;
+    });
 
     const playPrevious = () => {
         if (queue.length === 0) return;
