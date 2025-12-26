@@ -120,10 +120,10 @@ const Home = () => {
                 <div className="relative mb-8 rounded-xl overflow-hidden">
                     <div className="relative h-40 sm:h-52 md:h-64">
                         {banners.map((banner, index) => (
-                            <a key={banner.id} href={banner.link_url || '#'} target={banner.link_url ? '_blank' : '_self'} rel="noopener noreferrer"
+                            <a key={banner.id} href={banner.link || '#'} target={banner.link ? '_blank' : '_self'} rel="noopener noreferrer"
                                 className={`absolute inset-0 transition-opacity duration-500 ${index === currentBanner ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                                {banner.image_url ? (
-                                    <img src={getImageUrl(banner.image_url)} alt={banner.title} className="w-full h-full object-cover" />
+                                {banner.imageUrl ? (
+                                    <img src={banner.imageUrl} alt={banner.title || 'Banner'} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center">
                                         <span className="text-2xl font-bold text-white">{banner.title}</span>
