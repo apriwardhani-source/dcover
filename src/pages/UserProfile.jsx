@@ -95,7 +95,9 @@ const UserProfile = () => {
             const { conversationId } = await api.getConversationWithUser(profile.id);
             navigate(`/chat/${conversationId}`);
         } catch (error) {
-            toast.error('Gagal membuka chat');
+            console.error('Chat error:', error);
+            const message = error.message || 'Gagal membuka chat';
+            toast.error(message);
         }
     };
 

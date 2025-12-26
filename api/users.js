@@ -294,7 +294,17 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path.startsWith('messages/user/')) {
         const user = await getAuthUser(req);
         if (!user) return res.status(401).json({ error: 'Unauthorized' });
-        const otherUserId = path.replace('messages/user/', '');
+
+        const otherUserIdStr = path.replace('messages/user/', '');
+        const otherUserId = parseInt(otherUserIdStr);
+
+        if (!otherUserId || isNaN(otherUserId)) {
+            return res.status(400).json({ error: 'Invalid user ID' });
+        }
+
+        if (otherUserId === user.id) {
+            return res.status(400).json({ error: 'Cannot chat with yourself' });
+        }
 
         try {
             const [existing] = await pool.query('SELECT id FROM conversations WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', [user.id, otherUserId, otherUserId, user.id]);
