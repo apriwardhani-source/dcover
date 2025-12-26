@@ -60,6 +60,28 @@
   background: #cbd5e1;
 }
 
+/* Base input styles */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
 /* ========================================
    BASE STYLES
    ======================================== */
