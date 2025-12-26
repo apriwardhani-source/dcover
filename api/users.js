@@ -158,6 +158,7 @@ module.exports = async function handler(req, res) {
                     type: n.type,
                     message: n.message,
                     relatedId: n.related_id,
+                    songId: n.song_id,
                     fromUser: n.from_user_id ? {
                         id: n.from_user_id,
                         name: n.from_name,

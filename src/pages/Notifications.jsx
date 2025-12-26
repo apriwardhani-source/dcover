@@ -46,6 +46,8 @@ const Notifications = () => {
                 return <UserPlus className="w-5 h-5 text-blue-400" />;
             case 'like':
                 return <Heart className="w-5 h-5 text-red-400" fill="currentColor" />;
+            case 'comment':
+                return <Music2 className="w-5 h-5 text-green-400" />;
             default:
                 return <Bell className="w-5 h-5 text-[var(--color-primary)]" />;
         }
@@ -53,7 +55,8 @@ const Notifications = () => {
 
     const getNotificationLink = (n) => {
         if (n.type === 'follow' && n.fromUser?.id) return getUserUrl(n.fromUser);
-        if (n.type === 'like' && n.relatedId) return `/song/${n.relatedId}`;
+        if (n.type === 'like' && (n.songId || n.relatedId)) return `/song/${n.songId || n.relatedId}`;
+        if (n.type === 'comment' && (n.songId || n.relatedId)) return `/song/${n.songId || n.relatedId}`;
         if (n.fromUser?.id) return getUserUrl(n.fromUser);
         return '/';
     };

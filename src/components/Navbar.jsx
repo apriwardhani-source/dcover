@@ -149,16 +149,27 @@ const Navbar = () => {
             {/* Mobile Bottom Navigation */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-[var(--color-border)] z-50 safe-bottom">
                 <div className="flex justify-around items-center h-14">
-                    <Link to="/" className={`flex flex-col items-center justify-center px-4 py-2 ${isActive('/') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
+                    <Link to="/" className={`flex flex-col items-center justify-center px-3 py-2 ${isActive('/') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
                         <Home className="w-5 h-5" /><span className="text-[10px] mt-0.5">Home</span>
                     </Link>
-                    <Link to="/upload" className={`flex flex-col items-center justify-center px-4 py-2 ${isActive('/upload') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
+                    <Link to="/upload" className={`flex flex-col items-center justify-center px-3 py-2 ${isActive('/upload') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
                         <Upload className="w-5 h-5" /><span className="text-[10px] mt-0.5">Upload</span>
                     </Link>
-                    <Link to="/profile" className={`flex flex-col items-center justify-center px-4 py-2 ${isActive('/profile') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
+                    <Link to="/notifications" className={`relative flex flex-col items-center justify-center px-3 py-2 ${isActive('/notifications') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
+                        <div className="relative">
+                            <Bell className="w-5 h-5" />
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </div>
+                        <span className="text-[10px] mt-0.5">Inbox</span>
+                    </Link>
+                    <Link to="/profile" className={`flex flex-col items-center justify-center px-3 py-2 ${isActive('/profile') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
                         <User className="w-5 h-5" /><span className="text-[10px] mt-0.5">Profile</span>
                     </Link>
-                    <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center px-4 py-2 text-[var(--color-text-secondary)]">
+                    <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center px-3 py-2 text-[var(--color-text-secondary)]">
                         <Menu className="w-5 h-5" /><span className="text-[10px] mt-0.5">Menu</span>
                     </button>
                 </div>
