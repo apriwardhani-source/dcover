@@ -87,19 +87,29 @@ const Admin = () => {
 
     const handleCreateBanner = async (e) => {
         e.preventDefault();
-        if (!bannerForm.title) { toast.error('Judul banner wajib diisi'); return; }
+        if (!bannerForm.title && !bannerImage) { toast.error('Isi judul atau upload gambar'); return; }
         try {
+            let image_url = null;
+            if (bannerImage) {
+                // Upload image to Cloudinary
+                const imageResult = await api.uploadToCloudinary(bannerImage, 'image');
+                image_url = imageResult.secure_url;
+            }
             await api.createBanner({
-                title: bannerForm.title,
+                title: bannerForm.title || '',
                 description: bannerForm.description,
-                link_url: bannerForm.link_url
+                link_url: bannerForm.link_url,
+                image_url: image_url
             });
             toast.success('Banner dibuat!');
             setShowBannerForm(false);
             setBannerForm({ title: '', description: '', link_url: '' });
             setBannerImage(null);
             loadData();
-        } catch (error) { toast.error('Gagal membuat banner'); }
+        } catch (error) {
+            console.error('Create banner error:', error);
+            toast.error('Gagal membuat banner');
+        }
     };
 
     const handleToggleBanner = async (banner) => {

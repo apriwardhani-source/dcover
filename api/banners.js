@@ -44,7 +44,6 @@ module.exports = async function handler(req, res) {
 
         try {
             const { title, description, link_url, image_url } = req.body;
-            if (!title) return res.status(400).json({ error: 'Title is required' });
 
             const [result] = await pool.query(
                 'INSERT INTO banners (title, description, image_url, link_url, is_active, created_at) VALUES (?, ?, ?, ?, 1, NOW())',
