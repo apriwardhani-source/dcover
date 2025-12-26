@@ -121,6 +121,13 @@ module.exports = async function handler(req, res) {
             }
         }
 
+        // POST /api/songs/:id/play (Increment play count)
+        if (req.method === 'POST' && path.endsWith('/play')) {
+            const id = path.split('/')[0];
+            await pool.query('UPDATE songs SET plays = COALESCE(plays, 0) + 1 WHERE id = ?', [id]);
+            return res.json({ success: true });
+        }
+
         // POST /api/songs - Create song (requires auth)
         if (req.method === 'POST' && path === '') {
             const user = await getAuthUser(req);

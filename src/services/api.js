@@ -163,6 +163,12 @@ class ApiService {
         });
     }
 
+    async playSong(songId) {
+        return this.request(`/songs/${songId}/play`, {
+            method: 'POST',
+        });
+    }
+
     async getLikedSongs(userId) {
         return this.request(`/songs/liked/${userId}`);
     }
