@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { NotificationsSkeleton } from '../components/Skeletons';
+import toast from 'react-hot-toast';
 import { Bell, Heart, UserPlus, MessageCircle, Users, Activity, ChevronRight, Mail, Send } from 'lucide-react';
 import { getUserUrl } from '../utils/slug';
 
@@ -21,17 +22,23 @@ const Notifications = () => {
 
     const loadData = async () => {
         try {
-            const [notifData, convData] = await Promise.all([
-                api.getNotifications(),
-                api.getConversations().catch(() => [])
-            ]);
-            setNotifications(notifData.notifications || []);
-            setConversations(convData || []);
-            if (notifData.unreadCount > 0) {
-                await api.markNotificationsRead();
+            // Notifications
+            try {
+                const notifData = await api.getNotifications();
+                setNotifications(notifData.notifications || []);
+                if (notifData.unreadCount > 0) await api.markNotificationsRead();
+            } catch (e) {
+                console.error('Notif load error:', e);
             }
-        } catch (error) {
-            console.error('Load data error:', error);
+
+            // Conversations
+            try {
+                const convData = await api.getConversations();
+                setConversations(convData || []);
+            } catch (e) {
+                console.error('Conv load error:', e);
+                toast.error(e.message || 'Gagal memuat pesan');
+            }
         } finally {
             setLoading(false);
         }
@@ -91,8 +98,8 @@ const Notifications = () => {
                 <button
                     onClick={() => setActiveTab('activity')}
                     className={`flex-1 py-2.5 rounded-lg font-medium transition-all ${activeTab === 'activity'
-                            ? 'bg-[var(--color-primary)] text-black'
-                            : 'text-[var(--color-text-secondary)]'
+                        ? 'bg-[var(--color-primary)] text-black'
+                        : 'text-[var(--color-text-secondary)]'
                         }`}
                 >
                     <Activity className="w-4 h-4 inline mr-2" />
@@ -101,8 +108,8 @@ const Notifications = () => {
                 <button
                     onClick={() => setActiveTab('messages')}
                     className={`flex-1 py-2.5 rounded-lg font-medium transition-all relative ${activeTab === 'messages'
-                            ? 'bg-[var(--color-primary)] text-black'
-                            : 'text-[var(--color-text-secondary)]'
+                        ? 'bg-[var(--color-primary)] text-black'
+                        : 'text-[var(--color-text-secondary)]'
                         }`}
                 >
                     <MessageCircle className="w-4 h-4 inline mr-2" />

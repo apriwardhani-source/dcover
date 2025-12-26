@@ -227,7 +227,7 @@ module.exports = async function handler(req, res) {
             })));
         } catch (error) {
             console.error('Get conversations error:', error);
-            return res.json([]);
+            return res.status(500).json({ error: error.message || 'Failed to get conversations' });
         }
     }
 
