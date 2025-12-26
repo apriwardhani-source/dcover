@@ -380,22 +380,22 @@ class ApiService {
 
     // Messaging
     async getConversations() {
-        return this.request('/messages');
+        return this.request('/users/messages');
     }
 
     async getMessages(conversationId) {
-        return this.request(`/messages/${conversationId}`);
+        return this.request(`/users/messages/${conversationId}`);
     }
 
     async sendMessage(recipientId, content) {
-        return this.request('/messages', {
+        return this.request('/users/messages', {
             method: 'POST',
             body: JSON.stringify({ recipientId, content }),
         });
     }
 
     async getConversationWithUser(userId) {
-        return this.request(`/messages/user/${userId}`);
+        return this.request(`/users/messages/user/${userId}`);
     }
 }
 
