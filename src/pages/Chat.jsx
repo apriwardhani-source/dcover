@@ -24,7 +24,7 @@ const Chat = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, loading]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -84,41 +84,50 @@ const Chat = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <Loader2 className="w-8 h-8 animate-spin text-[var(--color-primary)]" />
+            <div className="flex items-center justify-center h-screen bg-[#0f0f0f]">
+                <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
             </div>
         );
     }
 
     return (
-        <div className="fixed inset-0 bg-[var(--color-bg)] z-50 flex flex-col">
-            {/* Header */}
-            <div className="flex items-center gap-3 p-4 border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-                <button onClick={() => navigate('/notifications')} className="p-2 -ml-2 hover:bg-[var(--color-surface-hover)] rounded-full">
-                    <ArrowLeft className="w-5 h-5" />
+        <div className="fixed inset-0 bg-[#0f0f0f] z-50 flex flex-col font-sans">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`
+                }}
+            />
+
+            {/* Header - Glassmorphism */}
+            <div className="relative flex items-center gap-3 p-4 backdrop-blur-md bg-[#1c1c1e]/80 border-b border-white/10 z-10 shadow-sm">
+                <button onClick={() => navigate('/notifications')} className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors text-white">
+                    <ArrowLeft className="w-6 h-6" />
                 </button>
                 {otherUser && (
-                    <div className="flex items-center gap-3 flex-1">
+                    <div className="flex items-center gap-3 flex-1 overflow-hidden">
                         {otherUser.photo ? (
-                            <img src={getImageUrl(otherUser.photo)} alt="" className="w-10 h-10 rounded-full object-cover" />
+                            <img src={getImageUrl(otherUser.photo)} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-transparent" />
                         ) : (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center">
-                                <span className="font-bold text-black">{otherUser.name?.charAt(0)}</span>
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shrink-0">
+                                <span className="font-bold text-white text-lg">{otherUser.name?.charAt(0)}</span>
                             </div>
                         )}
-                        <div>
-                            <p className="font-semibold">{otherUser.name}</p>
-                            <p className="text-xs text-[var(--color-text-secondary)]">Online</p>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-white truncate text-base leading-none mb-1">{otherUser.name}</p>
+                            <p className="text-xs text-blue-400 font-medium">Online</p>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 relative z-0">
                 {messages.length === 0 ? (
-                    <div className="text-center py-8 text-[var(--color-text-secondary)]">
-                        <p>Mulai percakapan dengan mengirim pesan</p>
+                    <div className="flex items-center justify-center h-full">
+                        <div className="bg-[#1c1c1e] text-white/50 px-6 py-3 rounded-full text-sm backdrop-blur-sm">
+                            Belum ada pesan. Sapa sekarang! 👋
+                        </div>
                     </div>
                 ) : (
                     messages.map((msg, index) => {
@@ -127,59 +136,82 @@ const Chat = () => {
                             formatDateHeader(msg.createdAt) !== formatDateHeader(messages[index - 1].createdAt);
 
                         return (
-                            <div key={msg.id}>
+                            <div key={msg.id} className="flex flex-col">
                                 {showDateHeader && (
-                                    <div className="text-center my-4">
-                                        <span className="text-xs text-[var(--color-text-muted)] bg-[var(--color-surface)] px-3 py-1 rounded-full">
+                                    <div className="self-center my-4 sticky top-2 z-10">
+                                        <span className="text-[11px] font-medium text-white/80 bg-[#000000]/40 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
                                             {formatDateHeader(msg.createdAt)}
                                         </span>
                                     </div>
                                 )}
-                                <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[75%] ${isMe ? 'order-2' : ''}`}>
-                                        <div className={`px-4 py-2.5 rounded-2xl ${isMe
-                                            ? 'bg-[var(--color-primary)] text-black rounded-br-md'
-                                            : 'bg-[var(--color-surface-hover)] rounded-bl-md'
-                                            }`}>
-                                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                <div className={`flex w-full mb-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[75%] relative group flex items-end gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+
+                                        {/* Message Bubble */}
+                                        <div className={`
+                                            px-4 py-2 rounded-2xl relative shadow-sm
+                                            ${isMe
+                                                ? 'bg-gradient-to-r from-[#8b5cf6] to-[#3b82f6] text-white rounded-tr-sm'
+                                                : 'bg-[#252525] text-white rounded-tl-sm border border-white/5'
+                                            }
+                                        `}>
+                                            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
+
+                                            {/* Timestamp & Status */}
+                                            <div className={`flex items-center justify-end gap-1 mt-1 select-none ${isMe ? 'opacity-90' : 'opacity-60'}`}>
+                                                <span className="text-[10px]">{formatTime(msg.createdAt)}</span>
+                                                {isMe && (
+                                                    <span className="text-[10px]">
+                                                        {msg.isRead ? (
+                                                            <div className="flex -space-x-1">
+                                                                <span className="text-white">✓</span>
+                                                                <span className="text-white">✓</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-white">✓</span>
+                                                        )}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Small tail SVG would go here for extra detail */}
                                         </div>
-                                        <p className={`text-[10px] text-[var(--color-text-muted)] mt-1 ${isMe ? 'text-right' : ''}`}>
-                                            {formatTime(msg.createdAt)}
-                                        </p>
                                     </div>
                                 </div>
                             </div>
                         );
                     })
                 )}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} className="h-2" />
             </div>
 
-            {/* Input */}
-            <form onSubmit={handleSend} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] safe-bottom">
-                <div className="flex gap-3">
-                    <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Tulis pesan..."
-                        className="input flex-1"
-                        style={{ paddingLeft: '1rem', paddingRight: '1rem' }}
-                        disabled={sending}
-                    />
+            {/* Input Area */}
+            <div className="p-3 bg-[#1c1c1e] border-t border-white/5 safe-bottom backdrop-blur-lg z-10">
+                <form onSubmit={handleSend} className="flex items-end gap-3 max-w-4xl mx-auto">
+                    <div className="flex-1 bg-[#2c2c2e] rounded-2xl flex items-center min-h-[48px] px-2 border border-white/5 transition-all focus-within:border-purple-500/50">
+                        <input
+                            type="text"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            placeholder="Ketik pesan..."
+                            className="flex-1 bg-transparent text-white px-3 py-3 outline-none placeholder:text-neutral-500"
+                            disabled={sending}
+                        />
+                    </div>
+
                     <button
                         type="submit"
                         disabled={!newMessage.trim() || sending}
-                        className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
+                        className="w-12 h-12 rounded-full bg-[#8b5cf6] text-white flex items-center justify-center disabled:opacity-50 disabled:bg-[#2c2c2e] transition-all hover:bg-[#7c3aed] active:scale-95 shadow-lg shadow-purple-500/20"
                     >
                         {sending ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                            <Send className="w-5 h-5" />
+                            <Send className="w-5 h-5 ml-0.5" fill="currentColor" />
                         )}
                     </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     );
 };
