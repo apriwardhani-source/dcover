@@ -63,16 +63,6 @@ const Navbar = () => {
                 </Link>
 
                 <div className="flex items-center gap-2">
-                    {/* Notification Button - Navigate to page */}
-                    <Link to="/notifications" className="relative p-2">
-                        <Bell className="w-5 h-5" />
-                        {unreadCount > 0 && (
-                            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </span>
-                        )}
-                    </Link>
-
                     {/* Profile Button */}
                     <Link to="/profile" className="w-8 h-8 rounded-full overflow-hidden bg-[var(--color-surface-hover)]">
                         {getPhotoUrl() ? (
