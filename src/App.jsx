@@ -18,6 +18,7 @@ import AlbumDetail from './pages/AlbumDetail';
 import Admin from './pages/Admin';
 import SongDetail from './pages/SongDetail';
 import Notifications from './pages/Notifications';
+import Chat from './pages/Chat';
 
 // Layout for authenticated pages
 const AuthenticatedLayout = ({ children }) => (
@@ -49,6 +50,7 @@ function App() {
               <Route path="/album/:albumId" element={<ProtectedRoute><AuthenticatedLayout><AlbumDetail /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/song/:id" element={<ProtectedRoute><AuthenticatedLayout><SongDetail /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><AuthenticatedLayout><Notifications /></AuthenticatedLayout></ProtectedRoute>} />
+              <Route path="/chat/:id" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
               <Route path="/user/:userId" element={<ProtectedRoute><AuthenticatedLayout><UserProfile /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/u/:username" element={<ProtectedRoute><AuthenticatedLayout><UserProfile /></AuthenticatedLayout></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute adminOnly><AuthenticatedLayout><Admin /></AuthenticatedLayout></ProtectedRoute>} />

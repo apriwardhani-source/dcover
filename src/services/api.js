@@ -377,6 +377,26 @@ class ApiService {
     async getFollowingCount(userId) {
         return this.request(`/follows/following/${userId}`);
     }
+
+    // Messaging
+    async getConversations() {
+        return this.request('/messages');
+    }
+
+    async getMessages(conversationId) {
+        return this.request(`/messages/${conversationId}`);
+    }
+
+    async sendMessage(recipientId, content) {
+        return this.request('/messages', {
+            method: 'POST',
+            body: JSON.stringify({ recipientId, content }),
+        });
+    }
+
+    async getConversationWithUser(userId) {
+        return this.request(`/messages/user/${userId}`);
+    }
 }
 
 export const api = new ApiService();

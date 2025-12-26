@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Upload, User, Shield, LogOut, Menu, X, Sun, Moon, Bell } from 'lucide-react';
+import { Home, Upload, User, Shield, LogOut, Menu, X, Sun, Moon, Inbox } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 
@@ -147,7 +147,7 @@ const Navbar = () => {
                     </Link>
                     <Link to="/notifications" className={`relative flex flex-col items-center justify-center px-3 py-2 ${isActive('/notifications') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
                         <div className="relative">
-                            <Bell className="w-5 h-5" />
+                            <Inbox className="w-5 h-5" />
                             {unreadCount > 0 && (
                                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
                                     {unreadCount > 9 ? '9+' : unreadCount}
