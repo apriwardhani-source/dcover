@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { getImageUrl } from '../utils/url';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePlayer } from '../context/PlayerContext';
 import api from '../services/api';
 import { UserProfileSkeleton } from '../components/Skeletons';
 import toast from 'react-hot-toast';
-import { Music2, Disc, Heart, Play, Pause, Users, UserPlus, UserMinus, X, Share2 } from 'lucide-react';
+import { Music2, Disc, Heart, Play, Pause, Users, UserPlus, UserMinus, X, Share2, MessageCircle } from 'lucide-react';
 import { API_URL } from '../config';
 import { getUserUrl, getSongUrl, getAlbumUrl } from '../utils/slug';
 
@@ -14,6 +14,7 @@ const UserProfile = () => {
     const { userId, username } = useParams();
     const { user: currentUser } = useAuth();
     const { playSong, currentSong, isPlaying } = usePlayer();
+    const navigate = useNavigate();
 
     const [profile, setProfile] = useState(null);
     const [songs, setSongs] = useState([]);
@@ -86,6 +87,15 @@ const UserProfile = () => {
             }
         } catch (error) {
             toast.error('Gagal');
+        }
+    };
+
+    const handleMessage = async () => {
+        try {
+            const { conversationId } = await api.getConversationWithUser(profile.id);
+            navigate(`/chat/${conversationId}`);
+        } catch (error) {
+            toast.error('Gagal membuka chat');
         }
     };
 
@@ -167,15 +177,23 @@ const UserProfile = () => {
                     </div>
 
                     {!isOwnProfile && currentUser && (
-                        <button
-                            onClick={handleFollow}
-                            className={`mt-4 flex items-center gap-2 px-6 py-2 rounded-full font-medium transition-colors ${isFollowing
-                                ? 'bg-[var(--color-surface-hover)] text-white hover:bg-red-500/20 hover:text-red-400'
-                                : 'bg-[var(--color-primary)] text-black hover:opacity-90'
-                                }`}
-                        >
-                            {isFollowing ? <><UserMinus className="w-5 h-5" /> Berhenti Ikuti</> : <><UserPlus className="w-5 h-5" /> Ikuti</>}
-                        </button>
+                        <div className="mt-4 flex items-center gap-3">
+                            <button
+                                onClick={handleFollow}
+                                className={`flex items-center gap-2 px-6 py-2 rounded-full font-medium transition-colors ${isFollowing
+                                    ? 'bg-[var(--color-surface-hover)] text-white hover:bg-red-500/20 hover:text-red-400'
+                                    : 'bg-[var(--color-primary)] text-black hover:opacity-90'
+                                    }`}
+                            >
+                                {isFollowing ? <><UserMinus className="w-5 h-5" /> Berhenti Ikuti</> : <><UserPlus className="w-5 h-5" /> Ikuti</>}
+                            </button>
+                            <button
+                                onClick={handleMessage}
+                                className="flex items-center gap-2 px-6 py-2 rounded-full font-medium bg-[var(--color-surface-hover)] text-white hover:opacity-90 transition-colors"
+                            >
+                                <MessageCircle className="w-5 h-5" /> Pesan
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
