@@ -198,33 +198,45 @@ module.exports = async function handler(req, res) {
 
         try {
             const [conversations] = await pool.query(`
-                SELECT 
-                    c.id as conversation_id,
-                    c.updated_at,
-                    CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END as other_user_id,
-                    u.name as other_user_name,
-                    u.username as other_user_username,
-                    u.photo_url as other_user_photo,
-                    m.content as last_message,
-                    m.sender_id as last_sender_id,
-                    m.created_at as last_message_time,
-                    (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != ? AND is_read = 0) as unread_count
+                SELECT c.* 
                 FROM conversations c
-                JOIN users u ON u.id = CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END
-                LEFT JOIN messages m ON m.id = (SELECT id FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1)
                 WHERE c.user1_id = ? OR c.user2_id = ?
                 ORDER BY c.updated_at DESC
-            `, [user.id, user.id, user.id, user.id, user.id]);
+            `, [user.id, user.id]);
 
-            return res.json(conversations.map(c => ({
-                conversationId: c.conversation_id,
-                otherUser: { id: c.other_user_id, name: c.other_user_name, username: c.other_user_username, photoURL: c.other_user_photo },
-                lastMessage: c.last_message,
-                lastSenderId: c.last_sender_id,
-                lastMessageTime: c.last_message_time,
-                unreadCount: c.unread_count,
-                updatedAt: c.updated_at
-            })));
+            const result = [];
+            for (const c of conversations) {
+                const otherUserId = c.user1_id === user.id ? c.user2_id : c.user1_id;
+
+                // Get other user info
+                const [users] = await pool.query('SELECT id, name, username, photo_url FROM users WHERE id = ?', [otherUserId]);
+                if (users.length === 0) continue;
+                const otherUser = users[0];
+
+                // Get last message
+                const [messages] = await pool.query('SELECT content, sender_id, created_at FROM messages WHERE conversation_id = ? ORDER BY created_at DESC LIMIT 1', [c.id]);
+                const lastMsg = messages[0];
+
+                // Get unread count
+                const [unread] = await pool.query('SELECT COUNT(*) as count FROM messages WHERE conversation_id = ? AND sender_id != ? AND is_read = 0', [c.id, user.id]);
+
+                result.push({
+                    conversationId: c.id,
+                    otherUser: {
+                        id: otherUser.id,
+                        name: otherUser.name,
+                        username: otherUser.username,
+                        photoURL: otherUser.photo_url
+                    },
+                    lastMessage: lastMsg?.content,
+                    lastSenderId: lastMsg?.sender_id,
+                    lastMessageTime: lastMsg?.created_at,
+                    unreadCount: unread[0]?.count || 0,
+                    updatedAt: c.updated_at
+                });
+            }
+
+            return res.json(result);
         } catch (error) {
             console.error('Get conversations error:', error);
             return res.status(500).json({ error: error.message || 'Failed to get conversations' });
