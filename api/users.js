@@ -36,6 +36,35 @@ module.exports = async function handler(req, res) {
         })));
     }
 
+    // GET /users/search?q=query - Search all users
+    if (req.method === 'GET' && path === 'search') {
+        const query = url.searchParams.get('q');
+        if (!query || query.trim().length < 2) {
+            return res.json([]);
+        }
+
+        const searchTerm = `%${query.trim().toLowerCase()}%`;
+        const [users] = await pool.query(`
+            SELECT u.id, u.name, u.username, u.photo_url,
+                   (SELECT COUNT(*) FROM songs WHERE user_id = u.id) as song_count,
+                   (SELECT COUNT(*) FROM follows WHERE following_id = u.id) as follower_count
+            FROM users u
+            WHERE u.suspended = 0
+              AND (LOWER(u.name) LIKE ? OR LOWER(u.username) LIKE ?)
+            ORDER BY song_count DESC, follower_count DESC
+            LIMIT 20
+        `, [searchTerm, searchTerm]);
+
+        return res.json(users.map(u => ({
+            id: u.id,
+            name: u.name,
+            username: u.username,
+            photoURL: u.photo_url,
+            songCount: u.song_count,
+            followerCount: u.follower_count
+        })));
+    }
+
     // GET /users (admin)
     if (req.method === 'GET' && path === '') {
         const user = await getAuthUser(req);

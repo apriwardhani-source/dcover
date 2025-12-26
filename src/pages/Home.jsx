@@ -20,9 +20,30 @@ const Home = () => {
     const [likedSongIds, setLikedSongIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchedUsers, setSearchedUsers] = useState([]);
     const [filters, setFilters] = useState({ sortBy: 'newest', hasLyrics: false });
     const [activeTab, setActiveTab] = useState('all');
     const [currentBanner, setCurrentBanner] = useState(0);
+
+    // Search users when query changes
+    useEffect(() => {
+        const searchUsers = async () => {
+            if (searchQuery.trim().length >= 2) {
+                try {
+                    const users = await api.searchUsers(searchQuery);
+                    setSearchedUsers(users);
+                } catch (error) {
+                    console.error('Search users error:', error);
+                    setSearchedUsers([]);
+                }
+            } else {
+                setSearchedUsers([]);
+            }
+        };
+
+        const debounce = setTimeout(searchUsers, 300);
+        return () => clearTimeout(debounce);
+    }, [searchQuery]);
 
     useEffect(() => {
         loadData();
@@ -183,7 +204,32 @@ const Home = () => {
             {/* Content */}
             {searchQuery || filters.hasLyrics ? (
                 <div>
-                    <h2 className="text-xl font-bold mb-4">Hasil Pencarian ({filteredSongs.length})</h2>
+                    {/* Artist search results */}
+                    {searchQuery && searchedUsers.length > 0 && (
+                        <div className="mb-8">
+                            <h2 className="text-xl font-bold mb-4">Artist ({searchedUsers.length})</h2>
+                            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                                {searchedUsers.map(u => (
+                                    <Link key={u.id} to={getUserUrl(u)} className="flex-shrink-0 w-24 text-center group">
+                                        <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-[var(--color-surface-hover)] mb-2">
+                                            {u.photoURL ? (
+                                                <img src={u.photoURL} alt={u.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-[var(--color-text-muted)]">
+                                                    {u.name?.charAt(0)}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-sm font-medium truncate">{u.name}</p>
+                                        <p className="text-xs text-[var(--color-text-secondary)]">{u.songCount} lagu</p>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Song search results */}
+                    <h2 className="text-xl font-bold mb-4">Lagu ({filteredSongs.length})</h2>
                     {filteredSongs.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {filteredSongs.map((song, index) => (
@@ -193,7 +239,7 @@ const Home = () => {
                     ) : (
                         <div className="text-center py-16">
                             <Music2 className="w-16 h-16 mx-auto text-[var(--color-text-muted)] mb-4" />
-                            <p className="text-[var(--color-text-secondary)]">Tidak ada hasil</p>
+                            <p className="text-[var(--color-text-secondary)]">Tidak ada lagu ditemukan</p>
                         </div>
                     )}
                 </div>

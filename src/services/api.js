@@ -244,6 +244,10 @@ class ApiService {
         return this.request('/users/suggestions');
     }
 
+    async searchUsers(query) {
+        return this.request(`/users/search?q=${encodeURIComponent(query)}`);
+    }
+
     // Profile
     async updateProfile(data) {
         // For Vercel + Cloudinary, send to upload endpoint
