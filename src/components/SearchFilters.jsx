@@ -45,7 +45,8 @@ const SearchFilters = ({ onSearch, onFilterChange, totalResults = 0 }) => {
                         placeholder="Cari lagu, artist..."
                         value={query}
                         onChange={handleSearchChange}
-                        className="input pl-12 pr-10"
+                        className="input"
+                        style={{ paddingLeft: '3rem', paddingRight: '2.5rem' }}
                     />
                     {query && (
                         <button onClick={clearSearch} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-white">
