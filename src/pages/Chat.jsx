@@ -85,7 +85,7 @@ const Chat = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#0f0f0f]">
-                <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-[var(--color-primary)]" />
             </div>
         );
     }
@@ -109,8 +109,8 @@ const Chat = () => {
                         {otherUser.photo ? (
                             <img src={getImageUrl(otherUser.photo)} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-transparent" />
                         ) : (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shrink-0">
-                                <span className="font-bold text-white text-lg">{otherUser.name?.charAt(0)}</span>
+                            <div className="w-10 h-10 rounded-full bg-[var(--color-primary)] flex items-center justify-center shrink-0">
+                                <span className="font-bold text-black text-lg">{otherUser.name?.charAt(0)}</span>
                             </div>
                         )}
                         <div className="flex-1 min-w-0">
@@ -151,24 +151,24 @@ const Chat = () => {
                                         <div className={`
                                             px-4 py-2 rounded-2xl relative shadow-sm
                                             ${isMe
-                                                ? 'bg-gradient-to-r from-[#8b5cf6] to-[#3b82f6] text-white rounded-tr-sm'
+                                                ? 'bg-[var(--color-primary)] text-black rounded-tr-sm'
                                                 : 'bg-[#252525] text-white rounded-tl-sm border border-white/5'
                                             }
                                         `}>
                                             <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
 
                                             {/* Timestamp & Status */}
-                                            <div className={`flex items-center justify-end gap-1 mt-1 select-none ${isMe ? 'opacity-90' : 'opacity-60'}`}>
+                                            <div className={`flex items-center justify-end gap-1 mt-1 select-none ${isMe ? 'opacity-70 text-black' : 'opacity-60 text-white'}`}>
                                                 <span className="text-[10px]">{formatTime(msg.createdAt)}</span>
                                                 {isMe && (
                                                     <span className="text-[10px]">
                                                         {msg.isRead ? (
                                                             <div className="flex -space-x-1">
-                                                                <span className="text-white">✓</span>
-                                                                <span className="text-white">✓</span>
+                                                                <span className="text-black">✓</span>
+                                                                <span className="text-black">✓</span>
                                                             </div>
                                                         ) : (
-                                                            <span className="text-white">✓</span>
+                                                            <span className="text-black">✓</span>
                                                         )}
                                                     </span>
                                                 )}
@@ -188,7 +188,7 @@ const Chat = () => {
             {/* Input Area */}
             <div className="p-3 bg-[#1c1c1e] border-t border-white/5 safe-bottom backdrop-blur-lg z-10">
                 <form onSubmit={handleSend} className="flex items-end gap-3 max-w-4xl mx-auto">
-                    <div className="flex-1 bg-[#2c2c2e] rounded-2xl flex items-center min-h-[48px] px-2 border border-white/5 transition-all focus-within:border-purple-500/50">
+                    <div className="flex-1 bg-[#2c2c2e] rounded-2xl flex items-center min-h-[48px] px-2 border border-white/5 transition-all focus-within:border-[var(--color-primary)]">
                         <input
                             type="text"
                             value={newMessage}
@@ -202,7 +202,7 @@ const Chat = () => {
                     <button
                         type="submit"
                         disabled={!newMessage.trim() || sending}
-                        className="w-12 h-12 rounded-full bg-[#8b5cf6] text-white flex items-center justify-center disabled:opacity-50 disabled:bg-[#2c2c2e] transition-all hover:bg-[#7c3aed] active:scale-95 shadow-lg shadow-purple-500/20"
+                        className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center disabled:opacity-50 disabled:bg-[#2c2c2e] transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[var(--color-primary)]/20"
                     >
                         {sending ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
