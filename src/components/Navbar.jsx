@@ -100,7 +100,7 @@ const Navbar = () => {
                     {/* Notification Link - Desktop */}
                     <Link to="/notifications"
                         className={`flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 relative ${isActive('/notifications') ? 'bg-[var(--color-surface-hover)] text-white' : 'text-[var(--color-text-secondary)] hover:text-white hover:bg-[var(--color-surface-hover)]'}`}>
-                        <Bell className="w-5 h-5" />
+                        <Inbox className="w-5 h-5" />
                         <span className="font-medium">Notifikasi</span>
                         {unreadCount > 0 && (
                             <span className="ml-auto w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
