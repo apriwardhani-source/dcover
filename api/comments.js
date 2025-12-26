@@ -28,7 +28,22 @@ module.exports = async function handler(req, res) {
         if (!user) return res.status(401).json({ error: 'Unauthorized' });
         const { songId, content } = req.body;
         if (!songId || !content?.trim()) return res.status(400).json({ error: 'Song ID and content required' });
+
         const [result] = await pool.query('INSERT INTO comments (song_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())', [songId, user.id, content.trim()]);
+
+        // Create notification for song owner
+        try {
+            const [songs] = await pool.query('SELECT user_id, title FROM songs WHERE id = ?', [songId]);
+            if (songs.length > 0 && songs[0].user_id !== user.id) {
+                await pool.query(
+                    'INSERT INTO notifications (user_id, from_user_id, type, song_id, message, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+                    [songs[0].user_id, user.id, 'comment', songId, `${user.name} mengomentari lagu "${songs[0].title}"`]
+                );
+            }
+        } catch (notifError) {
+            console.error('Notification error:', notifError);
+        }
+
         return res.status(201).json({
             id: result.insertId, content: content.trim(), songId, userId: user.id,
             userName: user.name, userUsername: user.username, userPhoto: user.photo_url, createdAt: new Date().toISOString()
