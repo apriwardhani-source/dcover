@@ -315,7 +315,7 @@ module.exports = async function handler(req, res) {
             return res.json({ conversationId: newConv.insertId, isNew: true });
         } catch (error) {
             console.error('Get/create conversation error:', error);
-            return res.status(500).json({ error: 'Failed to get conversation' });
+            return res.status(500).json({ error: error.message || 'Failed to get conversation' });
         }
     }
 
