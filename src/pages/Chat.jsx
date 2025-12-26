@@ -186,7 +186,7 @@ const Chat = () => {
             </div>
 
             {/* Input Area */}
-            <div className="p-2 bg-[#1c1c1e] border-t border-white/5 safe-bottom backdrop-blur-lg z-10">
+            <div className="p-2 pb-6 bg-[#1c1c1e] border-t border-white/5 safe-bottom backdrop-blur-lg z-10">
                 <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
                     {/* Attachment Button */}
                     <button
