@@ -10,10 +10,16 @@ module.exports = async function handler(req, res) {
 
     // GET /banners (active only)
     if (req.method === 'GET' && path === '') {
-        const [banners] = await pool.query('SELECT * FROM banners WHERE is_active = 1 ORDER BY created_at DESC');
-        return res.json(banners.map(b => ({
-            id: b.id, title: b.title, imageUrl: b.image_url, link: b.link_url, isActive: b.is_active, createdAt: b.created_at
-        })));
+        try {
+            const [banners] = await pool.query('SELECT * FROM banners WHERE is_active = 1 ORDER BY created_at DESC');
+            return res.json(banners.map(b => ({
+                id: b.id, title: b.title, imageUrl: b.image_url, link: b.link_url, isActive: b.is_active, createdAt: b.created_at
+            })));
+        } catch (error) {
+            console.error('Banners query error:', error);
+            // Return empty array if table doesn't exist
+            return res.json([]);
+        }
     }
 
     // GET /banners/all (admin)
