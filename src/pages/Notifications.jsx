@@ -32,12 +32,17 @@ const Notifications = () => {
     };
 
     const formatTimeAgo = (date) => {
-        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (!date) return '';
+        const parsedDate = new Date(date);
+        if (isNaN(parsedDate.getTime())) return '';
+
+        const seconds = Math.floor((new Date() - parsedDate) / 1000);
+        if (seconds < 0) return 'baru saja';
         if (seconds < 60) return 'baru saja';
         if (seconds < 3600) return `${Math.floor(seconds / 60)} menit lalu`;
         if (seconds < 86400) return `${Math.floor(seconds / 3600)} jam lalu`;
         if (seconds < 604800) return `${Math.floor(seconds / 86400)} hari lalu`;
-        return new Date(date).toLocaleDateString('id-ID');
+        return parsedDate.toLocaleDateString('id-ID');
     };
 
     const getNotificationIcon = (type) => {
