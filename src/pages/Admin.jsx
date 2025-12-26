@@ -89,12 +89,11 @@ const Admin = () => {
         e.preventDefault();
         if (!bannerForm.title) { toast.error('Judul banner wajib diisi'); return; }
         try {
-            const formData = new FormData();
-            formData.append('title', bannerForm.title);
-            formData.append('description', bannerForm.description);
-            formData.append('link_url', bannerForm.link_url);
-            if (bannerImage) formData.append('image', bannerImage);
-            await api.createBanner(formData);
+            await api.createBanner({
+                title: bannerForm.title,
+                description: bannerForm.description,
+                link_url: bannerForm.link_url
+            });
             toast.success('Banner dibuat!');
             setShowBannerForm(false);
             setBannerForm({ title: '', description: '', link_url: '' });

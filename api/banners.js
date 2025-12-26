@@ -26,13 +26,38 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path === 'all') {
         const user = await getAuthUser(req);
         if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
-        const [banners] = await pool.query('SELECT * FROM banners ORDER BY created_at DESC');
-        return res.json(banners.map(b => ({
-            id: b.id, title: b.title, imageUrl: b.image_url, link: b.link_url, isActive: b.is_active, createdAt: b.created_at
-        })));
+        try {
+            const [banners] = await pool.query('SELECT * FROM banners ORDER BY created_at DESC');
+            return res.json(banners.map(b => ({
+                id: b.id, title: b.title, imageUrl: b.image_url, link: b.link_url, isActive: b.is_active, createdAt: b.created_at
+            })));
+        } catch (error) {
+            console.error('Banners all query error:', error);
+            return res.json([]);
+        }
     }
 
-    // PATCH /banners/:id/toggle
+    // POST /banners (create new banner - admin only)
+    if (req.method === 'POST' && path === '') {
+        const user = await getAuthUser(req);
+        if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
+
+        try {
+            const { title, description, link_url, image_url } = req.body;
+            if (!title) return res.status(400).json({ error: 'Title is required' });
+
+            const [result] = await pool.query(
+                'INSERT INTO banners (title, description, image_url, link_url, is_active, created_at) VALUES (?, ?, ?, ?, 1, NOW())',
+                [title, description || null, image_url || null, link_url || null]
+            );
+
+            return res.status(201).json({ success: true, id: result.insertId });
+        } catch (error) {
+            console.error('Create banner error:', error);
+            return res.status(500).json({ error: 'Failed to create banner' });
+        }
+    }
+
     if (req.method === 'PATCH' && path.match(/^\d+\/toggle$/)) {
         const user = await getAuthUser(req);
         if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin required' });

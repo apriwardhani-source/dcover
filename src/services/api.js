@@ -282,10 +282,10 @@ class ApiService {
         return this.request('/banners/all');
     }
 
-    async createBanner(formData) {
+    async createBanner(data) {
         return this.request('/banners', {
             method: 'POST',
-            body: formData,
+            body: JSON.stringify(data),
         });
     }
 
