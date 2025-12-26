@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 
 import { API_URL } from '../config';
 import { getImageUrl } from '../utils/url';
+import { getSongUrl } from '../utils/slug';
 
 const MusicPlayer = () => {
     const {
