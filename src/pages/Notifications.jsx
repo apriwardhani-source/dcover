@@ -222,7 +222,7 @@ const Notifications = () => {
                                         {conv.otherUser?.photoURL ? (
                                             <img src={getImageUrl(conv.otherUser.photoURL)} alt="" className="w-12 h-12 rounded-full object-cover ring-2 ring-[var(--color-surface)]" />
                                         ) : (
-                                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center">
+                                            <div className="w-12 h-12 rounded-full bg-[var(--color-primary)] flex items-center justify-center">
                                                 <span className="text-lg font-bold text-black">{conv.otherUser?.name?.charAt(0)}</span>
                                             </div>
                                         )}
