@@ -58,10 +58,14 @@ const Comments = ({ songId }) => {
     };
 
     const formatDate = (date) => {
+        if (!date) return '';
         const d = new Date(date);
+        if (isNaN(d.getTime())) return '';
+
         const now = new Date();
         const diff = (now - d) / 1000;
 
+        if (diff < 0) return 'Baru saja';
         if (diff < 60) return 'Baru saja';
         if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
         if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
