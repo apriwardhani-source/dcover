@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { ArrowLeft, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Paperclip, Smile, Mic } from 'lucide-react';
 import { getImageUrl } from '../utils/url';
 
 const Chat = () => {
@@ -186,30 +186,56 @@ const Chat = () => {
             </div>
 
             {/* Input Area */}
-            <div className="p-3 bg-[#1c1c1e] border-t border-white/5 safe-bottom backdrop-blur-lg z-10">
-                <form onSubmit={handleSend} className="flex items-end gap-3 max-w-4xl mx-auto">
-                    <div className="flex-1 bg-[#2c2c2e] rounded-2xl flex items-center min-h-[48px] px-2 border border-white/5 transition-all focus-within:border-[var(--color-primary)]">
+            <div className="p-2 bg-[#1c1c1e] border-t border-white/5 safe-bottom backdrop-blur-lg z-10">
+                <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
+                    {/* Attachment Button */}
+                    <button
+                        type="button"
+                        className="w-10 h-10 rounded-full text-[#9ca3af] hover:text-white flex items-center justify-center transition-colors hover:bg-white/5 shrink-0"
+                    >
+                        <Paperclip className="w-6 h-6 transform -rotate-45" />
+                    </button>
+
+                    {/* Input Wrapper */}
+                    <div className="flex-1 bg-[#2c2c2e] rounded-2xl flex items-center min-h-[42px] px-1 border border-transparent focus-within:border-[var(--color-primary)]/30 transition-all">
                         <input
                             type="text"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder="Ketik pesan..."
-                            className="flex-1 bg-transparent text-white px-3 py-3 outline-none placeholder:text-neutral-500"
+                            placeholder="Pesan"
+                            className="flex-1 bg-transparent text-white px-3 py-2 outline-none placeholder:text-[#9ca3af] min-w-0"
                             disabled={sending}
                         />
+                        {/* Sticker Button */}
+                        <button
+                            type="button"
+                            className="p-2 text-[#9ca3af] hover:text-white transition-colors rounded-full hover:bg-white/5 shrink-0"
+                        >
+                            <Smile className="w-6 h-6" />
+                        </button>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={!newMessage.trim() || sending}
-                        className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center disabled:opacity-50 disabled:bg-[#2c2c2e] transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[var(--color-primary)]/20"
-                    >
-                        {sending ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                            <Send className="w-5 h-5 ml-0.5" fill="currentColor" />
-                        )}
-                    </button>
+                    {/* Send / Mic Button */}
+                    {newMessage.trim() ? (
+                        <button
+                            type="submit"
+                            disabled={sending}
+                            className="w-10 h-10 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center disabled:opacity-50 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[var(--color-primary)]/20 shrink-0"
+                        >
+                            {sending ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <Send className="w-5 h-5 ml-0.5" fill="currentColor" />
+                            )}
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            className="w-10 h-10 rounded-full bg-[#2c2c2e] text-white flex items-center justify-center hover:bg-[#3c3c3e] transition-all active:scale-95 shrink-0"
+                        >
+                            <Mic className="w-5 h-5" />
+                        </button>
+                    )}
                 </form>
             </div>
         </div>
